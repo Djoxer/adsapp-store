@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Merchant extends Model
 {
@@ -11,14 +11,13 @@ class Merchant extends Model
 
     protected $fillable = [
         'user_id', 'company_name', 'shop_url', 'vat_id',
-        'approval_status', 'approval_reviewed_at', 'approval_reviewer_id',
-        'commission_tier', 'payout_data', 'shop_last_checked_at',
+        'approval_status', 'commission_tier', 'payout_data',
     ];
 
     protected function casts(): array
     {
         return [
-            'payout_data'           => 'encrypted:array',
+            'payout_data'           => 'array', // JSON → PHP Array auto-cast
             'approval_reviewed_at'  => 'datetime',
             'shop_last_checked_at'  => 'datetime',
         ];
@@ -39,13 +38,14 @@ class Merchant extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function commissions()
-    {
-        return $this->hasMany(Commission::class);
-    }
-
     public function premiumSlots()
     {
         return $this->hasMany(PremiumSlot::class);
+    }
+
+    // Scope für approved Merchants — $merchant->isApproved()
+    public function isApproved(): bool
+    {
+        return $this->approval_status === 'approved';
     }
 }

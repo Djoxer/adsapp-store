@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ad extends Model
@@ -12,29 +12,17 @@ class Ad extends Model
 
     protected $fillable = [
         'merchant_id', 'category_id', 'title', 'description',
-        'price_cents', 'deeplink_url', 'status', 'current_score', 'last_activity_at',
+        'price_cents', 'deeplink_url', 'status', 'current_score',
     ];
 
     protected function casts(): array
     {
         return [
-            'current_score'    => 'decimal:4',
+            'current_score'    => 'decimal:2',
             'last_activity_at' => 'datetime',
         ];
     }
 
-    // Scopes
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
-
-    public function scopeRanked($query)
-    {
-        return $query->orderByDesc('current_score');
-    }
-
-    // Relations
     public function merchant()
     {
         return $this->belongsTo(Merchant::class);
@@ -47,6 +35,7 @@ class Ad extends Model
 
     public function images()
     {
+        // ordered by position — immer konsistente Reihenfolge
         return $this->hasMany(AdImage::class)->orderBy('position');
     }
 
@@ -55,14 +44,15 @@ class Ad extends Model
         return $this->belongsToMany(Tag::class, 'ad_tag');
     }
 
+    public function events()
+    {
+        // append-only, niemals updaten
+        return $this->hasMany(AdEvent::class);
+    }
+
     public function bookmarkedBy()
     {
         return $this->belongsToMany(User::class, 'bookmarks')->withTimestamps();
-    }
-
-    public function events()
-    {
-        return $this->hasMany(AdEvent::class);
     }
 
     public function orders()
@@ -70,8 +60,9 @@ class Ad extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function premiumSlots()
+    // Convenience: Preis in Euro für Templates
+    public function getPriceEuroAttribute(): string
     {
-        return $this->hasMany(PremiumSlot::class);
+        return number_format($this->price_cents / 100, 2, ',', '.') . ' €';
     }
 }

@@ -10,26 +10,30 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role'];
+    protected $fillable = [
+        'name', 'email', 'password', 'role',
+    ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
 
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            // role bleibt string — kein Enum-Cast nötig für jetzt
         ];
     }
 
-    // Rolle prüfen
+    // Helper-Methods für Role-Checks — sauberer als string-Vergleiche überall
     public function isAdmin(): bool    { return $this->role === 'admin'; }
     public function isMerchant(): bool { return $this->role === 'merchant'; }
     public function isBuyer(): bool    { return $this->role === 'buyer'; }
     public function isAgency(): bool   { return $this->role === 'agency'; }
-    public function isCreator(): bool  { return $this->role === 'creator'; }
 
-    // Relations
+    // 1:1 Relations — nur vorhanden wenn Rolle passt
     public function merchant()
     {
         return $this->hasOne(Merchant::class);
