@@ -1,3 +1,4 @@
+@props(['title' => 'LOGIN', 'subtitle' => 'IDENTITÄT BESTÄTIGEN UM FORTZUFAHREN'])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -85,7 +86,7 @@
 
 {{-- MAIN --}}
 <main class="fixed inset-0 top-[64px] bottom-[60px] flex items-start pt-[5%] justify-center p-5 bg-ink-dark">
-    <div class="panel-in w-full max-w-[400px] bg-ink-panel border border-line-warm relative overflow-hidden">
+    <div class="panel-in w-full max-w-[520px] bg-ink-panel border border-line-warm relative overflow-hidden">
 
         <div class="scan-line"></div>
         <div class="panel-left-border absolute left-0 top-0 bottom-0 w-[3px]"></div>
