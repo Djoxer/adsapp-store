@@ -14,16 +14,13 @@
     </a>
 
     {{-- Search --}}
-    <div class="relative" style="width:300px;">
-        <div class="absolute left-3 inset-y-0 flex items-center pointer-events-none" style="color:#404040;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
+    <div class="relative" style="width:350px;">
+        <div class="absolute left-2.5 inset-y-0 flex items-center pointer-events-none" style="color:#404040;">
+            <x-icons.search class="w-3.5 h-3.5" />
         </div>
         <input type="text" id="catalog-search" placeholder="SEARCH_DB_QUERY..."
-               class="w-full pl-9 pr-4 py-2.5 text-[11px] tracking-wider placeholder:text-[#454745] focus:outline-none transition-colors"
-               style="background:#1a1a1a; border:1px solid #333333; color:#A1A1AA; width:300px;">
+               class="w-full pl-8 pr-3 py-1 text-[14px] tracking-wider placeholder:text-[#454745] focus:outline-none transition-colors"
+               style="background:#1a1a1a; border:1px solid #333333; color:#A1A1AA; width:350px;">
     </div>
 
     {{-- User info + dropdown --}}
@@ -34,8 +31,8 @@
         </div>
         <div class="relative" x-data="{ open: false }" @click.outside="open = false">
             <button @click="open = !open"
-                class="w-8 h-8 border border-line-warm rounded-full flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors">
-                ⊙
+                    class="w-8 h-8 border border-line-warm rounded-full flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors">
+                <x-icons.profile class="w-4 h-4" />
             </button>
             <div x-show="open"
                  x-transition:enter="transition ease-out duration-150"
@@ -47,14 +44,16 @@
                  class="absolute right-0 top-10 w-48 bg-ink-panel border border-line-warm z-50"
                  style="display:none;">
                 <a href="{{ route('profile.edit') }}"
-                   class="block px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
-                    ⊞ PROFIL
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
+                    <x-icons.profile class="w-4 h-4" />
+                    PROFIL
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full text-left px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
-                        ⏻ LOGOUT
+                            class="w-full flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
+                        <x-icons.logout class="w-4 h-4" />
+                        LOGOUT
                     </button>
                 </form>
             </div>

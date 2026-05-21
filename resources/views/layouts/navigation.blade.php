@@ -10,14 +10,14 @@
         </div>
         {{-- Notifications --}}
         <button class="w-8 h-8 border border-line-warm flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors relative">
-            <span class="text-sm">🔔</span>
+            <x-icons.bell class="w-4 h-4" />
             <span class="absolute -top-1 -right-1 w-3 h-3 bg-brand-red text-white text-[7px] flex items-center justify-center">3</span>
         </button>
-        {{-- Profile Dropdown --}}
+
         <div class="relative" x-data="{ open: false }" @click.outside="open = false">
             <button @click="open = !open"
                     class="w-8 h-8 border border-line-warm rounded-full flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors">
-                ⊙
+                <x-icons.profile class="w-4 h-4" />
             </button>
             <div x-show="open"
                  x-transition:enter="transition ease-out duration-150"
@@ -29,14 +29,16 @@
                  class="absolute right-0 top-10 w-48 bg-ink-panel border border-line-warm z-50"
                  style="display:none;">
                 <a href="{{ route('profile.edit') }}"
-                   class="block px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
-                    ⊞ PROFIL
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
+                    <x-icons.profile class="w-4 h-4" />
+                    PROFIL
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full text-left px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
-                        ⏻ LOGOUT
+                            class="w-full flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
+                        <x-icons.logout class="w-4 h-4" />
+                        LOGOUT
                     </button>
                 </form>
             </div>
@@ -55,24 +57,26 @@
     <nav class="flex-1 py-3 overflow-y-auto">
         @php
             $navItems = [
-                ['route' => 'dashboard', 'icon' => '▦', 'label' => 'ÜBERSICHT'],
-                ['route' => 'dashboard', 'icon' => '◈', 'label' => 'MEINE ADS'],
-                ['route' => 'dashboard', 'icon' => '⊞', 'label' => 'AD ERSTELLEN'],
-                ['route' => 'dashboard', 'icon' => '◫', 'label' => 'BESTELLUNGEN'],
-                ['route' => 'dashboard', 'icon' => '◉', 'label' => 'PREMIUM SLOTS'],
-                ['route' => 'dashboard', 'icon' => '◎', 'label' => 'ANALYTICS'],
-                ['route' => 'dashboard', 'icon' => '◑', 'label' => 'ABRECHNUNGEN'],
-                ['route' => 'dashboard', 'icon' => '◧', 'label' => 'EINSTELLUNGEN'],
+                ['route' => 'dashboard', 'icon' => 'dashboard', 'label' => 'ÜBERSICHT'],
+                ['route' => 'dashboard', 'icon' => 'fav',       'label' => 'MEINE ADS'],
+                ['route' => 'dashboard', 'icon' => 'add',       'label' => 'AD ERSTELLEN'],
+                ['route' => 'dashboard', 'icon' => 'log',       'label' => 'BESTELLUNGEN'],
+                ['route' => 'dashboard', 'icon' => 'badge',     'label' => 'PREMIUM SLOTS'],
+                ['route' => 'dashboard', 'icon' => 'analyze',   'label' => 'ANALYTICS'],
+                ['route' => 'dashboard', 'icon' => 'cash',      'label' => 'ABRECHNUNGEN'],
+                ['route' => 'dashboard', 'icon' => 'controls',  'label' => 'EINSTELLUNGEN'],
             ];
         @endphp
 
         @foreach($navItems as $item)
             <a href="{{ route($item['route']) }}"
                class="flex items-center gap-3 px-5 py-2.5 text-[10px] tracking-[1.5px] transition-colors
-                  {{ request()->routeIs($item['route']) && $loop->first
-                     ? 'text-brand-yellow bg-ink-surface border-l-2 border-brand-yellow'
-                     : 'text-copy-neutral hover:text-brand-yellow hover:bg-ink-surface border-l-2 border-transparent' }}">
-                <span class="text-sm w-4 text-center">{{ $item['icon'] }}</span>
+              {{ request()->routeIs($item['route']) && $loop->first
+                 ? 'text-brand-yellow bg-ink-surface border-l-2 border-brand-yellow'
+                 : 'text-copy-neutral hover:text-brand-yellow hover:bg-ink-surface border-l-2 border-transparent' }}">
+            <span class="w-4 h-4 flex-shrink-0">
+                <x-dynamic-component :component="'icons.' . $item['icon']" class="w-4 h-4" />
+            </span>
                 {{ $item['label'] }}
             </a>
         @endforeach
@@ -80,12 +84,18 @@
 
     <div class="border-t border-line-warm py-3">
         <a href="#" class="flex items-center gap-3 px-5 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:text-brand-yellow hover:bg-ink-surface transition-colors">
-            <span class="text-sm w-4 text-center">?</span> SUPPORT
+        <span class="w-4 h-4 flex-shrink-0">
+            <x-icons.quest class="w-4 h-4" />
+        </span>
+            SUPPORT
         </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="w-full flex items-center gap-3 px-5 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:text-brand-red hover:bg-ink-surface transition-colors">
-                <span class="text-sm w-4 text-center">⏻</span> LOGOUT
+            <span class="w-4 h-4 flex-shrink-0">
+                <x-icons.logout class="w-4 h-4" />
+            </span>
+                LOGOUT
             </button>
         </form>
     </div>

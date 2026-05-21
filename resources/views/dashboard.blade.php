@@ -9,21 +9,27 @@
                 <div class="text-[9px] tracking-[2px] text-copy-neutral mb-3">AKTIVE ADS</div>
                 <div class="text-4xl font-sans font-bold text-copy-soft">34</div>
                 <div class="text-[9px] tracking-[1.5px] text-copy-ticker mt-2">SYSTEM_LOAD: OPTIMAL</div>
-                <div class="absolute top-4 right-4 text-copy-ticker text-lg">▦</div>
+                <div class="absolute top-4 right-4 text-brand-yellow">
+                    <x-icons.fav class="w-5 h-5" />
+                </div>
             </div>
 
             <div class="bg-ink-panel border border-line-warm p-4 relative overflow-hidden">
                 <div class="text-[9px] tracking-[2px] text-copy-neutral mb-3">VERKÄUFE HEUTE</div>
                 <div class="text-4xl font-sans font-bold text-copy-soft">07</div>
                 <div class="text-[9px] tracking-[1.5px] text-brand-yellow mt-2">+14.2% VS GESTERN</div>
-                <div class="absolute top-4 right-4 text-copy-ticker text-lg">↗</div>
+                <div class="absolute top-4 right-4 text-brand-yellow">
+                    <x-icons.trend class="w-5 h-5" />
+                </div>
             </div>
 
             <div class="bg-ink-panel border border-line-warm p-4 relative overflow-hidden">
                 <div class="text-[9px] tracking-[2px] text-copy-neutral mb-3">GESAMT_UMSATZ</div>
                 <div class="text-4xl font-sans font-bold text-copy-soft">€12.8K</div>
                 <div class="text-[9px] tracking-[1.5px] text-copy-ticker mt-2">LIFETIME_VALUE_NETTO</div>
-                <div class="absolute top-4 right-4 text-copy-ticker text-lg">◈</div>
+                <div class="absolute top-4 right-4 text-brand-yellow">
+                    <x-icons.cash class="w-5 h-5" />
+                </div>
             </div>
 
             <div class="bg-ink-panel border border-line-warm p-4 relative overflow-hidden">
@@ -34,7 +40,9 @@
                         <div class="h-1.5 flex-1 {{ $loop->index < 3 ? 'bg-brand-yellow' : 'bg-line-warm' }}"></div>
                     @endforeach
                 </div>
-                <div class="absolute top-4 right-4 text-copy-ticker text-lg">▐▐</div>
+                <div class="absolute top-4 right-4 text-brand-yellow">
+                    <x-icons.stats class="w-5 h-5" />
+                </div>
             </div>
 
         </div>

@@ -44,29 +44,37 @@
     {{-- Nav --}}
     <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
         @php
-        $buyerNav = [
-            ['icon'=>'▦','label'=>'KATALOG',   'route'=>'catalog',  'active'=>true],
-            ['icon'=>'◈','label'=>'RANKING',   'route'=>'catalog',  'active'=>false],
-            ['icon'=>'◉','label'=>'HOTSPOTS',  'route'=>'catalog',  'active'=>false],
-            ['icon'=>'◎','label'=>'ANALYTICS', 'route'=>'catalog',  'active'=>false],
-            ['icon'=>'✦','label'=>'MERKLISTE', 'route'=>'catalog',  'active'=>false],
-        ];
+            $buyerNav = [
+                ['icon'=>'raster', 'label'=>'KATALOG',   'route'=>'catalog', 'active'=>true],
+                ['icon'=>'rank',      'label'=>'RANKING',   'route'=>'catalog', 'active'=>false],
+                ['icon'=>'hot',       'label'=>'HOTSPOTS',  'route'=>'catalog', 'active'=>false],
+                ['icon'=>'analyze',   'label'=>'ANALYTICS', 'route'=>'catalog', 'active'=>false],
+                ['icon'=>'bookmark',  'label'=>'MERKLISTE', 'route'=>'catalog', 'active'=>false],
+            ];
         @endphp
         @foreach($buyerNav as $item)
-        <a href="{{ route($item['route']) }}" class="nav-item {{ $item['active'] ? 'active' : '' }}">
-            <span class="nav-icon">{{ $item['icon'] }}</span>
-            <span class="nav-label">{{ $item['label'] }}</span>
-        </a>
+            <a href="{{ route($item['route']) }}" class="nav-item {{ $item['active'] ? 'active' : '' }}">
+        <span class="nav-icon">
+            <x-dynamic-component :component="'icons.' . $item['icon']" class="w-5 h-5" />
+        </span>
+                <span class="nav-label">{{ $item['label'] }}</span>
+            </a>
         @endforeach
     </nav>
 
     {{-- Bottom --}}
     <div class="py-2 overflow-x-hidden" style="border-top:1px solid #1e1e1e;">
-        @foreach([['icon'=>'◧','label'=>'EINSTELLUNGEN','route'=>'profile.edit'],['icon'=>'ⓘ','label'=>'INFO','route'=>null],['icon'=>'⊛','label'=>'SECURITY','route'=>null]] as $item)
-        <a href="{{ $item['route'] ? route($item['route']) : '#' }}" class="nav-item">
-            <span class="nav-icon">{{ $item['icon'] }}</span>
-            <span class="nav-label">{{ $item['label'] }}</span>
-        </a>
+        @foreach([
+            ['icon'=>'gear',   'label'=>'EINSTELLUNGEN', 'route'=>'profile.edit'],
+            ['icon'=>'info',   'label'=>'INFO',           'route'=>null],
+            ['icon'=>'secure', 'label'=>'SECURITY',       'route'=>null],
+        ] as $item)
+            <a href="{{ $item['route'] ? route($item['route']) : '#' }}" class="nav-item">
+        <span class="nav-icon">
+            <x-dynamic-component :component="'icons.' . $item['icon']" class="w-5 h-5" />
+        </span>
+                <span class="nav-label">{{ $item['label'] }}</span>
+            </a>
         @endforeach
     </div>
 
