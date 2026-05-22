@@ -28,19 +28,45 @@
                  x-transition:leave-end="opacity-0 scale-95"
                  class="absolute right-0 top-10 w-48 bg-ink-panel border border-line-warm z-50"
                  style="display:none;">
-                <a href="{{ route('profile.edit') }}"
-                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
-                    <x-icons.profile class="w-4 h-4" />
-                    PROFIL
-                </a>
+
+                {{-- Profil --}}
+                <button onclick="openProfileOverlay(); $dispatch('close')"
+                        class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
+                    <x-icons.profile class="w-3.5 h-3.5" /> PROFIL
+                </button>
+
+                {{-- Dashboard/Catalog Toggle — role-aware --}}
+                @if(in_array(Auth::user()->role, ['merchant','agency','admin']))
+                    @if(request()->routeIs('dashboard')
+                                || request()->routeIs('settings*')
+                                || request()->routeIs('billing*')
+                                || request()->routeIs('analytics*')
+                                || request()->routeIs('slots*')
+                                || request()->routeIs('orders*')
+                                || request()->routeIs('ads*'))
+                        <a href="{{ route('catalog') }}"
+                           class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors border-t border-line-warm">
+                            <x-icons.raster class="w-3.5 h-3.5" />
+                            CATALOG
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard') }}"
+                           class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors border-t border-line-warm">
+                            <x-icons.dashboard class="w-3.5 h-3.5" />
+                            DASHBOARD
+                        </a>
+                    @endif
+                @endif
+
+                {{-- Logout --}}
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
-                        <x-icons.logout class="w-4 h-4" />
-                        LOGOUT
+                            class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
+                        <x-icons.logout class="w-3.5 h-3.5" /> LOGOUT
                     </button>
                 </form>
+
             </div>
         </div>
     </div>
@@ -57,23 +83,23 @@
     <nav class="flex-1 py-3 overflow-y-auto">
         @php
             $navItems = [
-                ['route' => 'dashboard', 'icon' => 'dashboard', 'label' => 'ÜBERSICHT'],
-                ['route' => 'dashboard', 'icon' => 'fav',       'label' => 'MEINE ADS'],
-                ['route' => 'dashboard', 'icon' => 'add',       'label' => 'AD ERSTELLEN'],
-                ['route' => 'dashboard', 'icon' => 'log',       'label' => 'BESTELLUNGEN'],
-                ['route' => 'dashboard', 'icon' => 'badge',     'label' => 'PREMIUM SLOTS'],
-                ['route' => 'dashboard', 'icon' => 'analyze',   'label' => 'ANALYTICS'],
-                ['route' => 'dashboard', 'icon' => 'cash',      'label' => 'ABRECHNUNGEN'],
-                ['route' => 'dashboard', 'icon' => 'controls',  'label' => 'EINSTELLUNGEN'],
+                ['route' => 'dashboard',    'icon' => 'dashboard', 'label' => 'ÜBERSICHT'],
+                ['route' => 'ads.index',    'icon' => 'fav',       'label' => 'MEINE ADS'],
+                ['route' => 'ads.create',   'icon' => 'add',       'label' => 'AD ERSTELLEN'],
+                ['route' => 'orders.index', 'icon' => 'log',       'label' => 'BESTELLUNGEN'],
+                ['route' => 'slots.index',  'icon' => 'badge',     'label' => 'PREMIUM SLOTS'],
+                ['route' => 'analytics.index','icon' => 'analyze', 'label' => 'ANALYTICS'],
+                ['route' => 'billing.index','icon' => 'cash',      'label' => 'ABRECHNUNGEN'],
+                ['route' => 'settings',     'icon' => 'controls',  'label' => 'EINSTELLUNGEN'],
             ];
         @endphp
 
         @foreach($navItems as $item)
             <a href="{{ route($item['route']) }}"
                class="flex items-center gap-3 px-5 py-2.5 text-[10px] tracking-[1.5px] transition-colors
-              {{ request()->routeIs($item['route']) && $loop->first
-                 ? 'text-brand-yellow bg-ink-surface border-l-2 border-brand-yellow'
-                 : 'text-copy-neutral hover:text-brand-yellow hover:bg-ink-surface border-l-2 border-transparent' }}">
+              {{ request()->routeIs($item['route']) || request()->routeIs($item['route'].'*')
+                   ? 'text-brand-yellow bg-ink-surface border-l-2 border-brand-yellow'
+                   : 'text-copy-neutral hover:text-brand-yellow hover:bg-ink-surface border-l-2 border-transparent' }}">
             <span class="w-4 h-4 flex-shrink-0">
                 <x-dynamic-component :component="'icons.' . $item['icon']" class="w-4 h-4" />
             </span>

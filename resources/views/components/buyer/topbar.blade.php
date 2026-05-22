@@ -43,19 +43,31 @@
                  x-transition:leave-end="opacity-0 scale-95"
                  class="absolute right-0 top-10 w-48 bg-ink-panel border border-line-warm z-50"
                  style="display:none;">
-                <a href="{{ route('profile.edit') }}"
-                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
-                    <x-icons.profile class="w-4 h-4" />
-                    PROFIL
-                </a>
+
+                {{-- Profil --}}
+                <button onclick="openProfileOverlay(); $dispatch('close')"
+                        class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
+                    <x-icons.profile class="w-3.5 h-3.5" /> PROFIL
+                </button>
+
+                {{-- Dashboard/Catalog Toggle — role-aware --}}
+                @if(in_array(Auth::user()->role, ['merchant','agency','admin']))
+                    <a href="{{ route('dashboard') }}"
+                       class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors border-t border-line-warm">
+                        <x-icons.dashboard class="w-3.5 h-3.5" />
+                        DASHBOARD
+                    </a>
+                @endif
+
+                {{-- Logout --}}
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
-                        <x-icons.logout class="w-4 h-4" />
-                        LOGOUT
+                            class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
+                        <x-icons.logout class="w-3.5 h-3.5" /> LOGOUT
                     </button>
                 </form>
+
             </div>
         </div>
     </div>

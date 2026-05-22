@@ -64,6 +64,6 @@
         </div>
     </div>
 </div>
-
+<x-profile-overlay />
 </body>
 </html>

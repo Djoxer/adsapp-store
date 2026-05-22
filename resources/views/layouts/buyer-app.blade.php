@@ -39,6 +39,6 @@
 
 <x-buyer.ticker />
 <x-buyer.ad-overlay />
-
+<x-profile-overlay />
 </body>
 </html>
