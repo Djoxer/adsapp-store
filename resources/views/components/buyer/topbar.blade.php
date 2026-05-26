@@ -44,8 +44,8 @@
                  class="absolute right-0 top-10 w-48 bg-ink-panel border border-line-warm z-50"
                  style="display:none;">
 
-                {{-- Profil --}}
-                <button onclick="openProfileOverlay(); $dispatch('close')"
+                {{-- Profil — schließt Dropdown via Alpine 'open', dann Overlay --}}
+                <button @click="open = false; openProfileOverlay()"
                         class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
                     <x-icons.profile class="w-3.5 h-3.5" /> PROFIL
                 </button>

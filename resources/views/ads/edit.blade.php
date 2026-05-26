@@ -12,12 +12,12 @@
             </a>
             <div>
                 <div class="text-[9px] tracking-[3px] text-copy-ticker mb-1">MERCHANT_CONSOLE // AD_MANAGEMENT</div>
-                <div class="text-[18px] font-sans font-bold text-copy-soft tracking-wider">AD ERSTELLEN</div>
+                <div class="text-[18px] font-sans font-bold text-copy-soft tracking-wider">AD BEARBEITEN</div>
             </div>
         </div>
 
-        <form method="POST" action="{{ route('ads.store') }}" enctype="multipart/form-data">
-            @csrf
+        <form method="POST" action="{{ route('ads.update', $ad->id) }}" enctype="multipart/form-data">
+            @csrf @method('PATCH')
 
             <div class="grid grid-cols-3 gap-5">
 
@@ -31,7 +31,7 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-[9px] tracking-[2px] text-copy-neutral mb-1.5">AD_TITEL *</label>
-                                <input type="text" name="title" value="{{ old('title') }}"
+                                <input type="text" name="title" value="{{ old('title', $ad->title) }}"
                                        placeholder="Z.B. GAMING CHAIR PRO 2024"
                                        class="w-full px-3 py-2.5 text-[11px] tracking-wider focus:outline-none transition-colors"
                                        style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">
@@ -45,7 +45,7 @@
                                 <textarea name="description" rows="4"
                                           placeholder="PRODUKTBESCHREIBUNG — PRÄZISE UND INFORMATIV..."
                                           class="w-full px-3 py-2.5 text-[11px] tracking-wider focus:outline-none transition-colors resize-none"
-                                          style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">{{ old('description') }}</textarea>
+                                          style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">{{ old('description', $ad->description) }}</textarea>
                                 @error('description')
                                 <div class="mt-1 text-[10px] tracking-wider" style="color:#DC2626;">{{ $message }}</div>
                                 @enderror
@@ -56,7 +56,7 @@
                                     <label class="block text-[9px] tracking-[2px] text-copy-neutral mb-1.5">PREIS (CENT) *</label>
                                     <div class="relative">
                                         <span class="absolute left-3 inset-y-0 flex items-center text-[11px]" style="color:#F5B700;">€</span>
-                                        <input type="number" name="price_cents" value="{{ old('price_cents') }}"
+                                        <input type="number" name="price_cents" value="{{ old('price_cents', $ad->price_cents) }}"
                                                placeholder="24900"
                                                class="w-full pl-7 pr-3 py-2.5 text-[11px] tracking-wider focus:outline-none transition-colors"
                                                style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">
@@ -86,7 +86,7 @@
 
                             <div>
                                 <label class="block text-[9px] tracking-[2px] text-copy-neutral mb-1.5">DEEPLINK_URL *</label>
-                                <input type="url" name="deeplink_url" value="{{ old('deeplink_url') }}"
+                                <input type="url" name="deeplink_url" value="{{ old('deeplink_url', $ad->deeplink_url) }}"
                                        placeholder="HTTPS://DEIN-SHOP.DE/PRODUKT/..."
                                        class="w-full px-3 py-2.5 text-[11px] tracking-wider focus:outline-none transition-colors"
                                        style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">
@@ -173,7 +173,7 @@
                             style="background:#DC2626;color:white;"
                             onmouseover="this.style.background='#FF535B'"
                             onmouseout="this.style.background='#DC2626'">
-                        AD ERSTELLEN →
+                        AD SPEICHERN →
                     </button>
 
                     <a href="{{ route('ads.index') }}"

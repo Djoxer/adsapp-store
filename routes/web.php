@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdController;
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SlotController;
@@ -20,8 +21,14 @@ Route::middleware('auth')->group(function () {
     // Merchant + Admin
     Route::middleware('role:merchant,agency,admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/ads', [AdController::class, 'index'])->name('ads.index');
-        Route::get('/ads/create', [AdController::class, 'create'])->name('ads.create');
+
+        Route::get('/ads',           [AdController::class, 'index'])->name('ads.index');
+        Route::get('/ads/create',    [AdController::class, 'create'])->name('ads.create');
+        Route::post('/ads',          [AdController::class, 'store'])->name('ads.store');
+        Route::get('/ads/{ad}/edit', [AdController::class, 'edit'])->name('ads.edit');
+        Route::patch('/ads/{ad}',    [AdController::class, 'update'])->name('ads.update');
+        Route::delete('/ads/{ad}',   [AdController::class, 'destroy'])->name('ads.destroy');
+
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/slots', [SlotController::class, 'index'])->name('slots.index');
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
@@ -38,6 +45,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // Alle Rollen
+    Route::post('/bookmarks/{ad}',  [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+    Route::get('/bookmarks',        [BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 

@@ -49,7 +49,7 @@
                 ['icon'=>'rank',      'label'=>'RANKING',   'route'=>'catalog', 'active'=>false],
                 ['icon'=>'hot',       'label'=>'HOTSPOTS',  'route'=>'catalog', 'active'=>false],
                 ['icon'=>'analyze',   'label'=>'ANALYTICS', 'route'=>'catalog', 'active'=>false],
-                ['icon'=>'bookmark',  'label'=>'MERKLISTE', 'route'=>'catalog', 'active'=>false],
+                ['icon'=>'bookmark', 'label'=>'MERKLISTE', 'route'=>'bookmarks.index', 'active'=>false],
             ];
         @endphp
         @foreach($buyerNav as $item)

@@ -50,9 +50,8 @@ class Ad extends Model
         return $this->hasMany(AdEvent::class);
     }
 
-    public function bookmarkedBy()
-    {
-        return $this->belongsToMany(User::class, 'bookmarks')->withTimestamps();
+    public function bookmarkedBy() {
+        return $this->belongsToMany(User::class, 'bookmarks')->withPivot('created_at');
     }
 
     public function orders()

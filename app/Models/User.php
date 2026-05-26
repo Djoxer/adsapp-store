@@ -40,9 +40,8 @@ class User extends Authenticatable
         return $this->hasOne(Merchant::class);
     }
 
-    public function bookmarks()
-    {
-        return $this->belongsToMany(Ad::class, 'bookmarks')->withTimestamps();
+    public function bookmarks() {
+        return $this->belongsToMany(Ad::class, 'bookmarks')->withPivot('created_at');
     }
 
     public function orders()

@@ -8,23 +8,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        body::before {
-            content: '';
-            position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+        /* CRT scanline — auf einem eigenen div, KEIN pseudo-element, kein fixed stacking context */
+        #crt-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            /* z-index bewusst UNTER den Overlays */
+            z-index: 100;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.03) 2px,
+                rgba(0,0,0,0.03) 4px
+            );
         }
+
         :root {
             --sidebar-collapsed: 50px;
             --sidebar-expanded:  210px;
             --topbar-h:          64px;
             --ticker-h:          50px;
         }
+
         #catalog-main::-webkit-scrollbar       { width: 3px; }
         #catalog-main::-webkit-scrollbar-track { background: transparent; }
         #catalog-main::-webkit-scrollbar-thumb { background: #3a2a2a; }
     </style>
 </head>
-<body class="font-mono h-screen overflow-hidden" style="background:#222222;color:#A1A1AA;">
+<body class="font-mono" style="background:#222222;color:#A1A1AA;height:100vh;width:100vw;">
+
+{{-- CRT Scanline als echtes Element statt ::before --}}
+<div id="crt-overlay"></div>
 
 <x-buyer.topbar />
 <x-buyer.sidebar />
@@ -38,7 +53,10 @@
 </div>
 
 <x-buyer.ticker />
+
+{{-- Overlays — direkt in body, außerhalb aller scroll/overflow Container --}}
 <x-buyer.ad-overlay />
 <x-profile-overlay />
+
 </body>
 </html>

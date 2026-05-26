@@ -44,6 +44,15 @@ class RegisteredUserController extends Controller
             'role'     => $request->role,
         ]);
 
+        // Merchant-Eintrag automatisch anlegen wenn Rolle merchant/agency
+        if (in_array($request->role, ['merchant', 'agency'])) {
+            \App\Models\Merchant::create([
+                'user_id'         => $user->id,
+                'company_name'    => $user->name,
+                'approval_status' => 'pending',
+            ]);
+        }
+
         event(new Registered($user));
 
         Auth::login($user);
