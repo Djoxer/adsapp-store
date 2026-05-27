@@ -89,6 +89,15 @@
         `;
 
             overlay.style.display = 'flex';
+            // View-Event tracken
+            fetch('/events/track', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ad_id: data.id, event_type: 'view' })
+            });
             document.body.style.overflow = 'hidden';
         };
 

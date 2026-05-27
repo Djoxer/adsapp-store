@@ -16,6 +16,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('/events/track', [AdEventController::class, 'track'])->name('events.track');
+
 Route::middleware('auth')->group(function () {
 
     // Merchant + Admin

@@ -7,7 +7,7 @@
         {{-- ═══ MAIN FEED ═══ --}}
         <div class="flex-1 p-4 space-y-4 min-w-0">
 
-            {{-- PREMIUM STRIP — Top 3 nach Score --}}
+            {{-- PREMIUM STRIP — nur bei gebuchten Slots --}}
             @if($premiumAds->isNotEmpty())
                 <div class="grid grid-cols-3 gap-3">
                     @foreach($premiumAds as $i => $ad)

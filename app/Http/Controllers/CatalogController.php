@@ -3,35 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ad;
+use App\Models\PremiumSlot;
 use Illuminate\Support\Facades\Auth;
 
 class CatalogController extends Controller
 {
     public function index()
     {
-        // Alle aktiven Ads nach Score, eager-load Relations
+        // Premium Strip — nur gebuchte, aktive, zeitlich gültige Slots
+        $premiumAds = PremiumSlot::with(['ad.merchant', 'ad.images'])
+            ->where('status', 'active')
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>=', now())
+            ->limit(3)
+            ->get()
+            ->map(fn($slot) => $slot->ad) // nur das Ad-Model rauslösen
+            ->filter(); // null rausfiltern falls ad gelöscht
+
+        // Organic Grid — alle aktiven Ads nach Score, komplett unabhängig
         $ads = Ad::with(['merchant', 'category', 'images'])
             ->where('status', 'active')
             ->orderByDesc('current_score')
             ->get();
 
-        // Top 3 → Premium-Strip (ersetzt Dummy-Sponsored-Slots)
-        $premiumAds = $ads->take(3);
-
-        // Rang 4–N → organisches Grid
-        $organicAds = $ads->skip(3);
-
-        // Hotspot = höchster Score (= $ads->first())
-        $hotspot = $ads->first();
-
-        // Right Panel = 4 zufällige aktive Ads
+        $organicAds   = $ads;
+        $hotspot      = $ads->first();
         $rightPanelAds = Ad::with(['images'])
             ->where('status', 'active')
             ->inRandomOrder()
             ->limit(4)
             ->get();
 
-        // Gebookmarkte IDs für Overlay-State
         $bookmarkedIds = Auth::user()->bookmarks()->pluck('ad_id')->toArray();
 
         return view('catalog.index', compact(
