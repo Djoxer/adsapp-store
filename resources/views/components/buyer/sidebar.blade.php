@@ -25,7 +25,7 @@
         border-left: 2px solid transparent;
         cursor: pointer; text-decoration: none; color: #555555;
     }
-    .nav-item:hover  { color: #DC2626 !important; background: #141414; }
+    .nav-item:hover  { color: #F5B700 !important; background: #141414; }
     .nav-item.active { color: #F5B700 !important; background: #1a1200; border-left-color: #F5B700; }
     #buyer-sidebar.expanded .nav-item { padding-left: 18px; justify-content: flex-start; gap: 12px; }
     .nav-item .nav-icon { width: 24px; text-align: center; flex-shrink: 0; font-size: 15px; line-height: 1; }
@@ -45,15 +45,16 @@
     <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
         @php
             $buyerNav = [
-                ['icon'=>'raster', 'label'=>'KATALOG',   'route'=>'catalog', 'active'=>true],
-                ['icon'=>'rank',      'label'=>'RANKING',   'route'=>'catalog', 'active'=>false],
-                ['icon'=>'hot',       'label'=>'HOTSPOTS',  'route'=>'catalog', 'active'=>false],
-                ['icon'=>'analyze',   'label'=>'ANALYTICS', 'route'=>'catalog', 'active'=>false],
-                ['icon'=>'bookmark', 'label'=>'MERKLISTE', 'route'=>'bookmarks.index', 'active'=>false],
+                ['icon'=>'raster',   'label'=>'KATALOG',   'route'=>'catalog'],
+                ['icon'=>'rank',     'label'=>'RANKING',   'route'=>'catalog.ranking'],
+                ['icon'=>'hot',      'label'=>'HOTSPOTS',  'route'=>'catalog.hotspots'],
+                ['icon'=>'analyze',  'label'=>'ANALYTICS', 'route'=>'catalog.analytics'],
+                ['icon'=>'bookmark', 'label'=>'MERKLISTE', 'route'=>'bookmarks.index'],
             ];
         @endphp
         @foreach($buyerNav as $item)
-            <a href="{{ route($item['route']) }}" class="nav-item {{ $item['active'] ? 'active' : '' }}">
+            <a href="{{ route($item['route']) }}"
+               class="nav-item {{ request()->routeIs($item['route']) ? 'active' : '' }}">
         <span class="nav-icon">
             <x-dynamic-component :component="'icons.' . $item['icon']" class="w-5 h-5" />
         </span>

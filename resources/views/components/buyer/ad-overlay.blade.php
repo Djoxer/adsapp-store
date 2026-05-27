@@ -3,7 +3,6 @@
     (function() {
         'use strict';
 
-        // Overlay-Element wird beim ersten Aufruf erzeugt und gecacht
         let overlayEl = null;
 
         function buildOverlay() {
@@ -11,26 +10,20 @@
 
             overlayEl = document.createElement('div');
             overlayEl.id = 'ad-overlay-dynamic';
-            // Alle Styles direkt — kein CSS-Klassen, kein display:none Ausgangszustand
             Object.assign(overlayEl.style, {
-                position:        'fixed',
-                top:             '0',
-                left:            '0',
-                right:           '0',
-                bottom:          '0',
-                zIndex:          '999999',
-                display:         'none',
-                alignItems:      'center',
-                justifyContent:  'center',
-                background:      'rgba(5,2,2,0.94)',
+                position:       'fixed',
+                top:            '0',
+                left:           '0',
+                right:          '0',
+                bottom:         '0',
+                zIndex:         '9000',        // Toast (100000) liegt drüber
+                display:        'none',
+                alignItems:     'center',
+                justifyContent: 'center',
+                background:     'transparent', // kein Backdrop
+                pointerEvents:  'none',        // Klicks gehen durch
             });
 
-            // Klick auf Hintergrund schließt
-            overlayEl.addEventListener('click', function(e) {
-                if (e.target === overlayEl) closeAdOverlay();
-            });
-
-            // direkt an body — garantiert kein overflow-Ancestor
             document.body.appendChild(overlayEl);
             return overlayEl;
         }
@@ -39,7 +32,10 @@
             const overlay = buildOverlay();
 
             overlay.innerHTML = `
-            <div style="width:100%;max-width:680px;position:relative;margin:0 16px;background:#111111;border:1px solid #2a2a2a;">
+            <div style="width:100%;max-width:680px;position:relative;margin:0 16px;
+                        background:#111111;border:1px solid #2a2a2a;
+                        pointer-events:all;
+                        box-shadow:0 0 60px rgba(245,183,0,0.25), 0 0 120px rgba(245,183,0,0.12);">
                 <button onclick="closeAdOverlay()"
                         style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#454745;z-index:10;"
                         onmouseover="this.style.color='#DC2626'" onmouseout="this.style.color='#454745'">✕</button>
@@ -85,7 +81,7 @@
                                     onclick="toggleBookmark(${data.id})"
                                     style="width:48px;border:1px solid ${data.bookmarked ? '#F5B700' : '#2a2a2a'};background:transparent;color:${data.bookmarked ? '#F5B700' : '#454745'};font-size:16px;cursor:pointer;"
                                     onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
-                                    onmouseout="this.style.borderColor='${data.bookmarked ? '#F5B700' : '#2a2a2a'}';this.style.color='${data.bookmarked ? '#F5B700' : '#454745'}'">✦</button>
+                                    onmouseout="this.dataset.bm==='1'?(this.style.borderColor='#F5B700',this.style.color='#F5B700'):(this.style.borderColor='#2a2a2a',this.style.color='#454745')">✦</button>
                         </div>
                     </div>
                 </div>
@@ -110,18 +106,49 @@
                 }
             })
                 .then(function(r) { return r.json(); })
-                .then(function(data) {
+                .then(function(res) {
                     const btn = document.getElementById('bookmark-btn-' + adId);
                     if (btn) {
-                        btn.style.color       = data.bookmarked ? '#F5B700' : '#454745';
-                        btn.style.borderColor = data.bookmarked ? '#F5B700' : '#2a2a2a';
-                        btn.title = data.bookmarked ? 'AUS MERKLISTE ENTFERNEN' : 'ZUR MERKLISTE HINZUFÜGEN';
+                        const isActive = res.bookmarked;
+                        btn.dataset.bm        = isActive ? '1' : '0';
+                        btn.style.color       = isActive ? '#F5B700' : '#454745';
+                        btn.style.borderColor = isActive ? '#F5B700' : '#2a2a2a';
+                        btn.title = isActive ? 'AUS MERKLISTE ENTFERNEN' : 'ZUR MERKLISTE HINZUFÜGEN';
                     }
+                    showBookmarkToast(res.bookmarked);
                 })
                 .catch(function(err) { console.error('Bookmark error:', err); });
         };
 
-        // ESC schließt
+        window.showBookmarkToast = function(added) {
+            let toast = document.getElementById('bookmark-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'bookmark-toast';
+                Object.assign(toast.style, {
+                    position:   'fixed',
+                    bottom:     '80px',
+                    right:      '24px',
+                    zIndex:     '100000', // über allem
+                    padding:    '8px 16px',
+                    fontSize:   '10px',
+                    letterSpacing: '2px',
+                    fontFamily: 'monospace',
+                    border:     '1px solid',
+                    transition: 'opacity 0.2s ease',
+                    pointerEvents: 'none', // Toast selbst nicht klickbar
+                });
+                document.body.appendChild(toast);
+            }
+            toast.textContent    = added ? '✦ MERKLISTE +1' : '✦ ENTFERNT';
+            toast.style.background  = added ? '#1a1200' : '#141414';
+            toast.style.borderColor = added ? '#F5B700' : '#454745';
+            toast.style.color       = added ? '#F5B700' : '#A1A1AA';
+            toast.style.opacity     = '1';
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        };
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeAdOverlay();
         });

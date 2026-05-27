@@ -41,7 +41,10 @@ Route::middleware('auth')->group(function () {
 
     // Buyer
     Route::middleware('role:buyer,merchant,agency,admin')->group(function () {
-        Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog');
+        Route::get('/catalog',           [CatalogController::class, 'index'])->name('catalog');
+        Route::get('/catalog/ranking',   [CatalogController::class, 'ranking'])->name('catalog.ranking');
+        Route::get('/catalog/hotspots',  [CatalogController::class, 'hotspots'])->name('catalog.hotspots');
+        Route::get('/catalog/analytics', [CatalogController::class, 'analytics'])->name('catalog.analytics');
     });
 
     // Alle Rollen

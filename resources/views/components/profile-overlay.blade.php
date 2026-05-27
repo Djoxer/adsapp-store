@@ -3,12 +3,14 @@
      Trigger: openProfileOverlay() via JS
 --}}
 
+{{-- Zeile 4: das äußere div --}}
 <div id="profile-overlay" class="hidden fixed inset-0 z-[200] flex items-center justify-center"
-     style="background:rgba(5,2,2,0.94);"
+     style="background:transparent;pointer-events:none;"
      onclick="if(event.target===this) closeProfileOverlay()">
 
     <div class="w-full max-w-[520px] relative mx-4 font-mono"
-         style="background:#111111; border:1px solid #2a2a2a;">
+         style="background:#111111;border:1px solid #2a2a2a;pointer-events:all;
+                box-shadow:0 0 60px rgba(245,183,0,0.25), 0 0 120px rgba(245,183,0,0.12);">
 
         {{-- Header --}}
         <div class="flex items-center justify-between px-6 py-4" style="border-bottom:1px solid #2a2a2a;">

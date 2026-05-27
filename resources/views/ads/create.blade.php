@@ -144,22 +144,23 @@
                         </div>
                     </div>
 
-                    {{-- Status --}}
-                    <div style="background:#271717;border:1px solid #5B403F;" class="p-5">
+                    {{-- Status — Alpine-powered Radio --}}
+                    <div style="background:#271717;border:1px solid #5B403F;" class="p-5"
+                         x-data="{ status: '{{ old('status', 'active') }}' }">
                         <div class="text-[9px] tracking-[3px] text-copy-ticker mb-4">INITIAL_STATUS</div>
                         <div class="space-y-2">
                             @foreach(['active'=>'AKTIV SCHALTEN','draft'=>'ALS ENTWURF'] as $val => $label)
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="radio" name="status" value="{{ $val }}"
-                                           {{ old('status', 'active') === $val ? 'checked' : '' }}
-                                           class="sr-only peer">
+                                <label class="flex items-center gap-3 cursor-pointer group"
+                                       @click="status = '{{ $val }}'">
+                                    <input type="radio" name="status" value="{{ $val }}" class="sr-only"
+                                           :checked="status === '{{ $val }}'">
                                     <div class="w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 transition-colors"
-                                         style="border-color:#5B403F;"
-                                         data-radio="{{ $val }}">
-                                        <div class="w-2 h-2 hidden peer-radio-check" style="background:#F5B700;"></div>
+                                         :style="status === '{{ $val }}' ? 'border-color:#F5B700;' : 'border-color:#5B403F;'">
+                                        <div class="w-2 h-2 transition-all"
+                                             :style="status === '{{ $val }}' ? 'background:#F5B700;' : 'background:transparent;'"></div>
                                     </div>
                                     <div class="text-[10px] tracking-[1.5px] transition-colors"
-                                         style="color:{{ old('status','active') === $val ? '#F5B700' : '#A1A1AA' }};">
+                                         :style="status === '{{ $val }}' ? 'color:#F5B700;' : 'color:#A1A1AA;'">
                                         {{ $label }}
                                     </div>
                                 </label>
