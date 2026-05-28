@@ -82,12 +82,18 @@
 </aside>
 
 <script>
-(function() {
-    const sidebar    = document.getElementById('buyer-sidebar');
-    const wrap       = document.getElementById('catalog-wrap');
-    document.getElementById('sidebar-toggle').addEventListener('click', () => {
-        const open = sidebar.classList.toggle('expanded');
-        wrap.style.left = open ? 'var(--sidebar-expanded)' : 'var(--sidebar-collapsed)';
-    });
-})();
+    (function() {
+        const sidebar = document.getElementById('buyer-sidebar');
+        const wrap    = document.getElementById('catalog-wrap');
+        const toggle  = document.getElementById('sidebar-toggle');
+
+        if (toggle && sidebar) {
+            toggle.addEventListener('click', () => {
+                const open = sidebar.classList.toggle('expanded');
+                if (wrap) {
+                    wrap.style.left = open ? 'var(--sidebar-expanded)' : 'var(--sidebar-collapsed)';
+                }
+            });
+        }
+    })();
 </script>

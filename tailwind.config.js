@@ -26,6 +26,14 @@ export default {
                     panel:       '#271717',
                     surface:     '#2C1B1B',
                 },
+                coal: {
+                    black:       '#0a0a0a',   // tiefster Hintergrund (Sidebar, Topbar)
+                    deep:        '#111111',   // Overlays, Modals
+                    panel:       '#141414',   // Cards, Dropdowns
+                    surface:     '#1a1a1a',   // Hover-States, Image-Placeholder
+                    line:        '#2a2a2a',   // Borders, Trennlinien
+                    'line-soft': '#1e1e1e',   // subtile Borders
+                },
                 line: {
                     warm:        '#5B403F',
                     yellow:      '#F5B700',

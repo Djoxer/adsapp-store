@@ -50,19 +50,19 @@
                  x-transition:leave="transition ease-in duration-75"
                  x-transition:leave-start="opacity-100 scale-100"
                  x-transition:leave-end="opacity-0 scale-95"
-                 class="absolute right-0 top-10 w-48 bg-ink-panel border border-line-warm z-50"
+                 class="absolute right-0 top-10 w-48 z-50 bg-coal-panel border border-coal-line"
                  style="display:none;">
 
                 {{-- Profil — schließt Dropdown via Alpine 'open', dann Overlay --}}
                 <button @click="open = false; openProfileOverlay()"
-                        class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
+                        class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors">
                     <x-icons.profile class="w-3.5 h-3.5" /> PROFIL
                 </button>
 
                 {{-- Dashboard/Catalog Toggle — role-aware --}}
                 @if(in_array(Auth::user()->role, ['merchant','agency','admin']))
                     <a href="{{ route('dashboard') }}"
-                       class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors border-t border-line-warm">
+                       class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
                         <x-icons.dashboard class="w-3.5 h-3.5" />
                         DASHBOARD
                     </a>
@@ -72,7 +72,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-red transition-colors border-t border-line-warm">
+                            class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-red transition-colors border-t border-coal-line">
                         <x-icons.logout class="w-3.5 h-3.5" /> LOGOUT
                     </button>
                 </form>

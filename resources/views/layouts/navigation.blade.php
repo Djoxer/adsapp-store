@@ -35,7 +35,7 @@
                  style="display:none;">
 
                 {{-- Profil --}}
-                <button onclick="openProfileOverlay(); $dispatch('close')"
+                <button @click="open = false; openProfileOverlay()"
                         class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors">
                     <x-icons.profile class="w-3.5 h-3.5" /> PROFIL
                 </button>
