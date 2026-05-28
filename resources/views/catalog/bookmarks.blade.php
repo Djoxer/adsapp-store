@@ -10,7 +10,7 @@
                 <div class="text-[14px] font-sans font-bold tracking-wider" style="color:#e8e8e8;">MERKLISTE</div>
             </div>
         </div>
-        <div class="text-[10px] tracking-[1.5px]" style="color:#454745;">
+        <div id="bookmark-count" class="text-[10px] tracking-[1.5px]" style="color:#454745;">
             {{ $bookmarks->count() }} EINTRÄGE
         </div>
     </div>
@@ -20,7 +20,8 @@
         @forelse($bookmarks->chunk(4) as $row)
             <div class="grid grid-cols-4 gap-3 mb-3">
                 @foreach($row as $ad)
-                    <div class="relative overflow-hidden cursor-pointer group"
+                    <div id="bookmark-card-{{ $ad->id }}"
+                         class="relative overflow-hidden cursor-pointer group"
                          style="background:#141414;border:1px solid #1e1e1e;border-left:3px solid #F5B700;"
                          onclick="openAdOverlay({
                  id:{{ $ad->id }},
@@ -80,5 +81,50 @@
         @endforelse
 
     </div>
+
+    <script>
+    window.addEventListener('load', function() {
+        // Läuft garantiert NACH dem Overlay-Script
+        window.toggleBookmark = function(adId) {
+            fetch('/bookmarks/' + adId, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                }
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (!res.bookmarked) {
+                    const card = document.getElementById('bookmark-card-' + adId);
+                    if (card) {
+                        card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.92)';
+                        setTimeout(() => {
+                            card.remove();
+                            updateBookmarkCount();
+                            checkEmptyState();
+                        }, 250);
+                    }
+                    if (typeof closeAdOverlay === 'function') closeAdOverlay();
+                }
+                if (typeof showBookmarkToast === 'function') showBookmarkToast(res.bookmarked);
+            })
+            .catch(err => console.error('Bookmark error:', err));
+        };
+
+        function updateBookmarkCount() {
+            const remaining = document.querySelectorAll('[id^="bookmark-card-"]').length;
+            const counter = document.getElementById('bookmark-count');
+            if (counter) counter.textContent = remaining + ' EINTRÄGE';
+        }
+
+        function checkEmptyState() {
+            const remaining = document.querySelectorAll('[id^="bookmark-card-"]').length;
+            if (remaining === 0) location.reload();
+        }
+    });
+    </script>
 
 </x-buyer-app-layout>
