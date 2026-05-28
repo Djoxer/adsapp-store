@@ -6,25 +6,34 @@
     }
 </style>
 
-<nav class="fixed top-0 left-0 right-0 h-[64px] flex items-center justify-between px-7 border-b-2 border-line-yellow bg-black z-[150]">
+<nav class="fixed top-0 left-0 right-0 h-[64px] grid grid-cols-3 items-center px-7 border-b-2 border-line-yellow bg-black z-[150]">
 
+    {{-- Col 1: Logo — links --}}
     <a href="{{ route('catalog') }}"
-       class="font-sans font-bold text-4xl italic tracking-[3px] text-brand-red no-underline logo-blink leading-none mt-1">
+       class="font-sans font-bold text-4xl italic tracking-[3px] text-brand-red no-underline logo-blink leading-none mt-1 justify-self-start inline-block">
         ADSAPP.STORE
     </a>
 
-    {{-- Search --}}
-    <div class="relative" style="width:350px;">
+    {{-- Col 2: Search — exakt zentriert --}}
+    <form method="GET" action="{{ route('catalog') }}" class="relative justify-self-center" style="width:350px;">
+        {{-- Kategorie + Sort aus aktuellem State erhalten --}}
+        @if(request('category'))
+            <input type="hidden" name="category" value="{{ request('category') }}">
+        @endif
+        @if(request('sort'))
+            <input type="hidden" name="sort" value="{{ request('sort') }}">
+        @endif
         <div class="absolute left-2.5 inset-y-0 flex items-center pointer-events-none" style="color:#404040;">
             <x-icons.search class="w-3.5 h-3.5" />
         </div>
-        <input type="text" id="catalog-search" placeholder="SEARCH_DB_QUERY..."
+        <input type="text" name="q" value="{{ request('q') }}"
+               placeholder="SEARCH_DB_QUERY..."
                class="w-full pl-8 pr-3 py-1 text-[14px] tracking-wider placeholder:text-[#454745] focus:outline-none transition-colors"
-               style="background:#1a1a1a; border:1px solid #333333; color:#A1A1AA; width:350px;">
-    </div>
+               style="background:#1a1a1a;border:1px solid #333333;color:#A1A1AA;width:350px;">
+    </form>
 
-    {{-- User info + dropdown --}}
-    <div class="flex items-center gap-6">
+    {{-- Col 3: User info + dropdown — rechts --}}
+    <div class="flex items-center gap-6 justify-self-end">
         <div class="text-right text-[10px] tracking-widest leading-relaxed">
             <div class="text-copy-neutral">OPERATOR_ID: <span class="text-brand-yellow">{{ Auth::user()->id ?? '---' }}-X</span></div>
             <div class="text-copy-neutral">{{ strtoupper(Auth::user()->name ?? 'OPERATOR') }} · <span class="text-brand-yellow">{{ strtoupper(Auth::user()->role ?? 'BUYER') }}</span></div>

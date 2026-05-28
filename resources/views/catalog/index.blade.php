@@ -1,6 +1,6 @@
 <x-buyer-app-layout>
 
-    <x-catalog.filter-bar />
+    <x-catalog.filter-bar :categories="$categories" :activeCategory="$activeCategory" :sort="$sort" />
 
     <div class="flex">
 
