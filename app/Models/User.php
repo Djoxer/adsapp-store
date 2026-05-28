@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -24,7 +25,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
-            // role bleibt string — kein Enum-Cast nötig für jetzt
+            'notifications_seen_at' => 'datetime',
         ];
     }
 
@@ -47,5 +48,26 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Anzahl ungelesener Leads seit notifications_seen_at.
+     * Genutzt für das Badge in der Topbar-Bell.
+     */
+    public function getUnreadLeadsCountAttribute(): int
+    {
+        // Nur Merchants haben Leads
+        if (!$this->merchant) {
+            return 0;
+        }
+
+        $since = $this->notifications_seen_at ?? $this->created_at;
+
+        return DB::table('ad_events')
+            ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
+            ->where('ads.merchant_id', $this->merchant->id)
+            ->where('ad_events.event_type', 'dwell')
+            ->where('ad_events.created_at', '>', $since)
+            ->count();
     }
 }

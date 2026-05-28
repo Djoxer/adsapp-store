@@ -9,9 +9,14 @@
             <div class="text-copy-neutral">{{ strtoupper(Auth::user()->name ?? 'OPERATOR') }} · <span class="text-brand-yellow">{{ strtoupper(Auth::user()->role ?? 'USER') }}</span></div>
         </div>
         {{-- Notifications --}}
-        <button class="w-8 h-8 border border-line-warm flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors relative">
+        <button onclick="window.location='{{ route('settings') }}?tab=benachricht'"
+                class="w-8 h-8 border border-line-warm flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors relative">
             <x-icons.bell class="w-4 h-4" />
-            <span class="absolute -top-1 -right-1 w-3 h-3 bg-brand-red text-white text-[7px] flex items-center justify-center">3</span>
+            @if(Auth::user()->unread_leads_count > 0)
+                <span id="notif-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-brand-red text-white text-[7px] flex items-center justify-center">
+                    {{ Auth::user()->unread_leads_count > 9 ? '9+' : Auth::user()->unread_leads_count }}
+                </span>
+            @endif
         </button>
 
         <div class="relative" x-data="{ open: false }" @click.outside="open = false">
