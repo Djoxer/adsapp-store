@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdController;
+use App\Http\Controllers\AdEventController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\OrderController;
@@ -12,9 +13,7 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', function () { return view('welcome'); });
 
 Route::post('/events/track', [AdEventController::class, 'track'])->name('events.track');
 
@@ -49,11 +48,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/catalog/analytics', [CatalogController::class, 'analytics'])->name('catalog.analytics');
     });
 
+    // Ad Detail — public (aber nur active Ads)
+    Route::get('/ads/{ad}/click', [AdController::class, 'click'])->name('ads.click');
+    Route::get('/ads/{ad}', [AdController::class, 'show'])->name('ads.show');
+
     // Alle Rollen
     Route::post('/bookmarks/{ad}',  [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
     Route::get('/bookmarks',        [BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{order}/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation');
 
 });
 

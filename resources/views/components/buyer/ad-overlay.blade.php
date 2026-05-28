@@ -38,7 +38,7 @@
                         box-shadow:0 0 60px rgba(245,183,0,0.25), 0 0 120px rgba(245,183,0,0.12);">
                 <button onclick="closeAdOverlay()"
                         style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#454745;z-index:10;"
-                        onmouseover="this.style.color='#DC2626'" onmouseout="this.style.color='#454745'">✕</button>
+                        onmouseover="this.style.color='#DC2626'" onmouseout="this.style.color='#454745'">&times;</button>
 
                 <div style="border-bottom:1px solid #2a2a2a;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;">
                     <div>
@@ -71,17 +71,25 @@
                             <div style="font-size:9px;letter-spacing:2px;color:#454745;margin-bottom:4px;font-family:'Share Tech Mono',monospace;">HÄNDLER</div>
                             <div style="font-size:11px;letter-spacing:1px;color:#A1A1AA;font-family:'Share Tech Mono',monospace;">${data.merchant ?? '—'}</div>
                         </div>
-                        <div style="margin-top:auto;display:flex;gap:12px;">
-                            <a href="${data.deeplink ?? '#'}" target="_blank"
-                               style="flex:1;display:block;text-align:center;padding:12px;font-size:11px;letter-spacing:2px;font-family:'Rajdhani',sans-serif;font-weight:700;text-decoration:none;background:#DC2626;color:white;"
+                        <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
+                            <a href="/ads/${data.id}/click" target="_blank"
+                               style="display:block;text-align:center;padding:12px;font-size:11px;letter-spacing:2px;font-family:'Rajdhani',sans-serif;font-weight:700;text-decoration:none;background:#DC2626;color:white;"
                                onmouseover="this.style.background='#FF535B'" onmouseout="this.style.background='#DC2626'">
-                                JETZT KAUFEN →
+                                ZUM HÄNDLER &rarr;
                             </a>
-                            <button id="bookmark-btn-${data.id}"
-                                    onclick="toggleBookmark(${data.id})"
-                                    style="width:48px;border:1px solid ${data.bookmarked ? '#F5B700' : '#2a2a2a'};background:transparent;color:${data.bookmarked ? '#F5B700' : '#454745'};font-size:16px;cursor:pointer;"
-                                    onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
-                                    onmouseout="this.dataset.bm==='1'?(this.style.borderColor='#F5B700',this.style.color='#F5B700'):(this.style.borderColor='#2a2a2a',this.style.color='#454745')">✦</button>
+                            <div style="display:flex;gap:8px;">
+                                <a href="/ads/${data.id}"
+                                   style="flex:1;display:block;text-align:center;padding:10px;font-size:10px;letter-spacing:2px;font-family:'Share Tech Mono',monospace;text-decoration:none;border:1px solid #2a2a2a;color:#A1A1AA;"
+                                   onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                                   onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#A1A1AA'">
+                                    VOLLANSICHT &rarr;
+                                </a>
+                                <button id="bookmark-btn-${data.id}"
+                                        onclick="toggleBookmark(${data.id})"
+                                        style="width:48px;border:1px solid ${data.bookmarked ? '#F5B700' : '#2a2a2a'};background:transparent;color:${data.bookmarked ? '#F5B700' : '#454745'};font-size:16px;cursor:pointer;"
+                                        onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                                        onmouseout="this.dataset.bm==='1'?(this.style.borderColor='#F5B700',this.style.color='#F5B700'):(this.style.borderColor='#2a2a2a',this.style.color='#454745')">&#10022;</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -149,7 +157,7 @@
                 });
                 document.body.appendChild(toast);
             }
-            toast.textContent    = added ? '✦ MERKLISTE +1' : '✦ ENTFERNT';
+            toast.textContent    = added ? '\u2726 MERKLISTE +1' : '\u2726 ENTFERNT';
             toast.style.background  = added ? '#1a1200' : '#141414';
             toast.style.borderColor = added ? '#F5B700' : '#454745';
             toast.style.color       = added ? '#F5B700' : '#A1A1AA';

@@ -26,8 +26,8 @@
     $adDesc   = $isModel ? $ad->description : ($ad['description'] ?? '');
     $adRank   = $rank ?? ($ad['rank'] ?? null);
 
-    // Bild: erstes AdImage oder Placeholder
-    $adImage  = $isModel ? $ad->images->first()?->path : ($ad['image'] ?? null);
+    // Bild: erstes AdImage (cache_path) oder Placeholder
+    $adImage  = $isModel ? $ad->images->first()?->cache_path : ($ad['image'] ?? null);
 
     $isTop    = $adRank === 1;
     $borderStyle = $isTop
@@ -37,8 +37,11 @@
 
     // JS-sicheres escaping für onclick
     $jsTitle = addslashes(e($adTitle));
-    $jsDesc  = addslashes(e($adDesc));
+    $jsDesc  = addslashes(e($adMerch));
     $jsMerch = addslashes(e($adMerch));
+
+    // Detail-URL
+    $detailUrl = $adId ? route('ads.show', $adId) : '#';
 @endphp
 
 <div class="relative overflow-hidden cursor-pointer group"
@@ -50,7 +53,7 @@
          rank:{{ $adRank ?? 'null' }},
          score:'{{ $adScore ?? '' }}',
          merchant:'{{ $jsMerch }}',
-         description:'{{ $jsDesc }}',
+         description:'{{ addslashes(e($adDesc)) }}',
          bookmarked:{{ json_encode($bookmarked) }}
      })">
 
@@ -61,6 +64,34 @@
             RANK #{{ $adRank }}{{ ($isTop && $adScore) ? ': '.number_format($adScore,1) : '' }}
         </div>
     @endif
+
+    {{-- Action-Buttons — top-right, stop propagation damit Card-Overlay nicht triggert --}}
+    <div class="absolute top-2 right-2 z-20 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {{-- Lupe → Quick View (Overlay) --}}
+        <button onclick="event.stopPropagation(); openAdOverlay({
+                    id:{{ $adId }},
+                    title:'{{ $jsTitle }}',
+                    price:'{{ $adPrice }}',
+                    rank:{{ $adRank ?? 'null' }},
+                    score:'{{ $adScore ?? '' }}',
+                    merchant:'{{ $jsMerch }}',
+                    description:'{{ addslashes(e($adDesc)) }}',
+                    bookmarked:{{ json_encode($bookmarked) }}
+                })"
+                title="QUICK_VIEW"
+                class="w-6 h-6 flex items-center justify-center text-[11px] transition-colors"
+                style="background:#111111;border:1px solid #2a2a2a;color:#A1A1AA;"
+                onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#A1A1AA'">⌕</button>
+        {{-- Pfeil → Detail-Page --}}
+        <a href="{{ $detailUrl }}"
+           onclick="event.stopPropagation()"
+           title="VOLLANSICHT"
+           class="w-6 h-6 flex items-center justify-center text-[11px] transition-colors no-underline"
+           style="background:#111111;border:1px solid #2a2a2a;color:#A1A1AA;"
+           onmouseover="this.style.borderColor='#DC2626';this.style.color='#DC2626'"
+           onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#A1A1AA'">→</a>
+    </div>
 
     @if($size === 'featured')
         {{-- Featured: Gradient-Overlay mit Bottom-Text --}}
@@ -74,10 +105,6 @@
              style="background:linear-gradient(0deg,rgba(10,5,5,0.95) 0%,transparent 100%);">
             <div class="text-xl font-sans font-bold tracking-wider" style="color:#e8e8e8;">{{ $adTitle }}</div>
             <div class="text-[11px] tracking-wider mt-1" style="color:#F5B700;">{{ $adPrice }}</div>
-            <button class="mt-3 text-[10px] tracking-[2px] px-4 py-2 font-sans font-semibold"
-                    style="background:#DC2626;color:white;"
-                    onmouseover="this.style.background='#FF535B'"
-                    onmouseout="this.style.background='#DC2626'">DATA_FETCH</button>
         </div>
     @else
         {{-- Standard-Karten --}}

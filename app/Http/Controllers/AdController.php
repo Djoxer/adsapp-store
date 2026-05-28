@@ -107,4 +107,43 @@ class AdController extends Controller
         return redirect()->route('ads.index')
             ->with('status', 'ad-deleted');
     }
+
+    public function show(Ad $ad)
+    {
+        // Nur aktive Ads sind öffentlich sichtbar
+        abort_if($ad->status !== 'active', 404);
+
+        $ad->load(['merchant', 'category', 'images', 'tags']);
+
+        $bookmarked = Auth::check()
+            ? Auth::user()->bookmarks()->where('ad_id', $ad->id)->exists()
+            : false;
+
+        // view-Event tracken
+        \App\Models\AdEvent::create([
+            'ad_id'      => $ad->id,
+            'event_type' => 'view',
+            'user_id'    => Auth::id(),
+            'ip_hash'    => hash('sha256', request()->ip()),
+        ]);
+
+        return view('ads.show', compact('ad', 'bookmarked'));
+    }
+
+    public function click(Ad $ad)
+    {
+        abort_if($ad->status !== 'active', 404);
+
+        // Click-Event → Score-Boost (wir nutzen 'dwell' als Gewicht-3-Signal,
+        // da Enum kein 'click' hat — Klick zum Händler = starkes Interesse)
+        \App\Models\AdEvent::create([
+            'ad_id'      => $ad->id,
+            'event_type' => 'dwell',
+            'user_id'    => Auth::id(),
+            'ip_hash'    => hash('sha256', request()->ip()),
+        ]);
+
+        // Redirect zum echten Händler-Deeplink
+        return redirect()->away($ad->deeplink_url);
+    }
 }
