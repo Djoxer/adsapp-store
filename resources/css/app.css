@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Brand-gelber Focus statt Browser-Blau — global */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none !important;
+    border-color: #F5B700 !important;
+}
+
+/* Autofill-Highlight (Chrome gelb/blau) neutralisieren */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #e8e8e8;
+    -webkit-box-shadow: 0 0 0 1000px #1a0f0f inset;
+    transition: background-color 9999s;
+}
+
+input:focus, select:focus, textarea:focus {
+    box-shadow: none !important;
+}

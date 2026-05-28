@@ -11,8 +11,23 @@ class AdController extends Controller
 {
     public function index()
     {
-        $ads = Auth::user()->merchant->ads()->latest()->get();
-        return view('ads.index', compact('ads'));
+        $merchant = Auth::user()->merchant;
+
+        // Stats für die Cards
+        $stats = [
+            'total'   => $merchant->ads()->count(),
+            'active'  => $merchant->ads()->where('status', 'active')->count(),
+            'paused'  => $merchant->ads()->where('status', 'paused')->count(),
+            'draft'   => $merchant->ads()->where('status', 'draft')->count(),
+        ];
+
+        // Paginierte Ads — 6 pro Seite
+        $ads = $merchant->ads()
+            ->with('images')
+            ->latest()
+            ->paginate(6);
+
+        return view('ads.index', compact('ads', 'stats'));
     }
 
     public function create()

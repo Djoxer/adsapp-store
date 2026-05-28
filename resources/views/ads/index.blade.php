@@ -20,14 +20,14 @@
         {{-- STATS ROW --}}
         <div class="grid grid-cols-4 gap-3">
             @foreach([
-                ['label'=>'GESAMT ADS',   'value'=>'12',    'sub'=>'ALLE EINTRÄGE',        'color'=>'#A1A1AA'],
-                ['label'=>'AKTIV',        'value'=>'08',    'sub'=>'LIVE IM CATALOG',      'color'=>'#F5B700'],
-                ['label'=>'PAUSIERT',     'value'=>'03',    'sub'=>'NICHT SICHTBAR',       'color'=>'#454745'],
-                ['label'=>'PENDING',      'value'=>'01',    'sub'=>'WARTET AUF REVIEW',    'color'=>'#DC2626'],
+                ['label'=>'GESAMT ADS', 'value'=>$stats['total'],  'sub'=>'ALLE EINTRÄGE',     'color'=>'#A1A1AA'],
+                ['label'=>'AKTIV',      'value'=>$stats['active'], 'sub'=>'LIVE IM CATALOG',   'color'=>'#F5B700'],
+                ['label'=>'PAUSIERT',   'value'=>$stats['paused'], 'sub'=>'NICHT SICHTBAR',    'color'=>'#454745'],
+                ['label'=>'ENTWURF',    'value'=>$stats['draft'],  'sub'=>'NICHT VERÖFFENTL.', 'color'=>'#DC2626'],
             ] as $stat)
                 <div class="p-4 relative overflow-hidden" style="background:#271717;border:1px solid #5B403F;">
                     <div class="text-[9px] tracking-[2px] text-copy-neutral mb-2">{{ $stat['label'] }}</div>
-                    <div class="text-3xl font-sans font-bold" style="color:{{ $stat['color'] }};">{{ $stat['value'] }}</div>
+                    <div class="text-3xl font-sans font-bold" style="color:{{ $stat['color'] }};">{{ str_pad($stat['value'], 2, '0', STR_PAD_LEFT) }}</div>
                     <div class="text-[9px] tracking-[1.5px] text-copy-ticker mt-1">{{ $stat['sub'] }}</div>
                 </div>
             @endforeach
@@ -129,7 +129,7 @@
                                 style="border:1px solid #5B403F;color:#A1A1AA;"
                                 onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
                                 onmouseout="this.style.borderColor='#5B403F';this.style.color='#A1A1AA'">
-                            <x-icons.{{ $ad->status === 'active' ? 'hidden' : 'show' }} class="w-3.5 h-3.5" />
+                            <x-dynamic-component :component="'icons.' . ($ad->status === 'active' ? 'hidden' : 'show')" class="w-3.5 h-3.5" />
                         </button>
                         <button class="w-7 h-7 flex items-center justify-center transition-colors"
                                 style="border:1px solid #5B403F;color:#A1A1AA;"
@@ -158,17 +158,45 @@
 
         </div>
 
-        {{-- Pagination placeholder --}}
+        {{-- Pagination --}}
         <div class="flex items-center justify-between text-[9px] tracking-[1.5px]" style="color:#454745;">
-            <div>ZEIGE 1–6 VON 12 EINTRÄGEN</div>
-            <div class="flex gap-1">
-                @foreach([1,2] as $p)
-                    <button class="w-7 h-7 flex items-center justify-center border transition-colors"
-                            style="{{ $p===1 ? 'border-color:#F5B700;color:#F5B700;' : 'border-color:#5B403F;color:#A1A1AA;' }}">
-                        {{ $p }}
-                    </button>
-                @endforeach
+            <div>
+                ZEIGE {{ $ads->firstItem() ?? 0 }}–{{ $ads->lastItem() ?? 0 }} VON {{ $ads->total() }} EINTRÄGEN
             </div>
+            @if($ads->hasPages())
+                <div class="flex gap-1">
+                    {{-- Prev --}}
+                    @if(!$ads->onFirstPage())
+                        <a href="{{ $ads->previousPageUrl() }}"
+                           class="w-7 h-7 flex items-center justify-center border transition-colors"
+                           style="border-color:#5B403F;color:#A1A1AA;"
+                           onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                           onmouseout="this.style.borderColor='#5B403F';this.style.color='#A1A1AA'">&larr;</a>
+                    @endif
+
+                    {{-- Seitenzahlen --}}
+                    @foreach(range(1, $ads->lastPage()) as $p)
+                        <a href="{{ $ads->url($p) }}"
+                           class="w-7 h-7 flex items-center justify-center border transition-colors"
+                           style="{{ $p === $ads->currentPage()
+                   ? 'border-color:#F5B700;color:#F5B700;'
+                   : 'border-color:#5B403F;color:#A1A1AA;' }}"
+                           onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                           onmouseout="this.style.borderColor='{{ $p === $ads->currentPage() ? '#F5B700' : '#5B403F' }}';this.style.color='{{ $p === $ads->currentPage() ? '#F5B700' : '#A1A1AA' }}'">
+                            {{ $p }}
+                        </a>
+                    @endforeach
+
+                    {{-- Next --}}
+                    @if($ads->hasMorePages())
+                        <a href="{{ $ads->nextPageUrl() }}"
+                           class="w-7 h-7 flex items-center justify-center border transition-colors"
+                           style="border-color:#5B403F;color:#A1A1AA;"
+                           onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                           onmouseout="this.style.borderColor='#5B403F';this.style.color='#A1A1AA'">&rarr;</a>
+                    @endif
+                </div>
+            @endif
         </div>
 
     </div>
