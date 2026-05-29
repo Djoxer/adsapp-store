@@ -34,23 +34,66 @@
         </div>
 
         {{-- FILTER BAR --}}
-        <div class="flex items-center gap-3">
-            @foreach(['ALLE','AKTIV','PAUSIERT','PENDING'] as $i => $f)
-                <button class="px-4 py-1.5 text-[10px] tracking-[1.5px] border transition-colors"
-                        style="{{ $i===0 ? 'border-color:#F5B700;color:#F5B700;' : 'border-color:#5B403F;color:#A1A1AA;' }}">
-                    {{ $f }}
-                </button>
+        <div class="flex items-center gap-3 flex-wrap">
+            @foreach(['alle'=>'ALLE','active'=>'AKTIV','paused'=>'PAUSIERT','draft'=>'ENTWURF'] as $val => $label)
+                <a href="{{ route('ads.index', array_merge(request()->query(), ['status'=>$val, 'page'=>1])) }}"
+                   class="px-4 py-1.5 text-[10px] tracking-[1.5px] border transition-colors"
+                   style="{{ request('status',$_default='alle') === $val
+               ? 'border-color:#F5B700;color:#F5B700;'
+               : 'border-color:#5B403F;color:#A1A1AA;' }}">
+                    {{ $label }}
+                </a>
             @endforeach
-            <div class="flex-1"></div>
-            {{-- Search --}}
+
+            {{-- Kategorie-Dropdown --}}
             <div class="relative">
-                <div class="absolute left-2.5 inset-y-0 flex items-center pointer-events-none" style="color:#454745;">
-                    <x-icons.search class="w-3.5 h-3.5" />
+                <select name="category"
+                        onchange="window.location=this.value"
+                        class="appearance-none pl-3 pr-7 py-1.5 text-[10px] tracking-[1.5px] focus:outline-none transition-colors cursor-pointer"
+                        style="background:#1a0f0f;border:1px solid #5B403F;color:{{ request('category') ? '#F5B700' : '#A1A1AA' }};">
+                    <option value="{{ route('ads.index', array_merge(request()->except('category'), ['page'=>1])) }}"
+                        {{ !request('category') ? 'selected' : '' }}>
+                        ALLE KAT.
+                    </option>
+                    @foreach($categories as $cat)
+                        <option value="{{ route('ads.index', array_merge(request()->query(), ['category'=>$cat->id, 'page'=>1])) }}"
+                            {{ request('category') == $cat->id ? 'selected' : '' }}>
+                            {{ strtoupper($cat->name) }}
+                        </option>
+                    @endforeach
+                </select>
+                <div class="absolute right-2 inset-y-0 flex items-center pointer-events-none" style="color:#454745;">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </div>
-                <input type="text" placeholder="AD SUCHEN..."
-                       class="pl-8 pr-4 py-1.5 text-[10px] tracking-wider focus:outline-none transition-colors"
-                       style="background:#1a0f0f;border:1px solid #5B403F;color:#A1A1AA;width:200px;">
             </div>
+
+            <div class="flex-1"></div>
+
+            {{-- Search --}}
+            <form method="GET" action="{{ route('ads.index') }}" class="relative flex items-center gap-2">
+                @if(request('status') && request('status') !== 'alle')
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                @endif
+                @if(request('category'))
+                    <input type="hidden" name="category" value="{{ request('category') }}">
+                @endif
+                <div class="relative">
+                    <div class="absolute left-2.5 inset-y-0 flex items-center pointer-events-none" style="color:#454745;">
+                        <x-icons.search class="w-3.5 h-3.5" />
+                    </div>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                           placeholder="AD SUCHEN..."
+                           class="pl-8 pr-4 py-1.5 text-[10px] tracking-wider focus:outline-none transition-colors"
+                           style="background:#1a0f0f;border:1px solid {{ request('search') ? '#F5B700' : '#5B403F' }};color:#A1A1AA;width:200px;">
+                </div>
+                @if(request('search'))
+                    <a href="{{ route('ads.index', array_merge(request()->except('search'), ['page'=>1])) }}"
+                       class="text-[9px] tracking-wider transition-colors"
+                       style="color:#454745;"
+                       onmouseover="this.style.color='#DC2626'"
+                       onmouseout="this.style.color='#454745'">✕</a>
+                @endif
+            </form>
         </div>
 
         {{-- ADS TABLE --}}

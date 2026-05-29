@@ -9,25 +9,42 @@ use Illuminate\Support\Facades\Auth;
 
 class AdController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $merchant = Auth::user()->merchant;
 
-        // Stats für die Cards
         $stats = [
-            'total'   => $merchant->ads()->count(),
-            'active'  => $merchant->ads()->where('status', 'active')->count(),
-            'paused'  => $merchant->ads()->where('status', 'paused')->count(),
-            'draft'   => $merchant->ads()->where('status', 'draft')->count(),
+            'total'  => $merchant->ads()->count(),
+            'active' => $merchant->ads()->where('status', 'active')->count(),
+            'paused' => $merchant->ads()->where('status', 'paused')->count(),
+            'draft'  => $merchant->ads()->where('status', 'draft')->count(),
         ];
 
-        // Paginierte Ads — 6 pro Seite
-        $ads = $merchant->ads()
-            ->with('images')
-            ->latest()
-            ->paginate(6);
+        $query = $merchant->ads()->with('images');
 
-        return view('ads.index', compact('ads', 'stats'));
+        // Status-Filter
+        if ($request->filled('status') && $request->status !== 'alle') {
+            $query->where('status', $request->status);
+        }
+
+        // Kategorie-Filter
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // Suche
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', "%{$request->search}%")
+                    ->orWhere('description', 'like', "%{$request->search}%");
+            });
+        }
+
+        $ads = $query->latest()->paginate(6)->withQueryString();
+
+        $categories = \App\Models\Category::orderBy('name')->get();
+
+        return view('ads.index', compact('ads', 'stats', 'categories'));
     }
 
     public function create()
