@@ -38,12 +38,12 @@
                 </div>
             @endif
 
-            {{-- HOTSPOT — Highest Score --}}
-            @if($hotspot)
-                <x-catalog.hotspot-banner :ad="$hotspot" />
+            {{-- FEATURED HOTSPOT — Zone 04 --}}
+            @if($featuredHotspot)
+                <x-catalog.hotspot-banner :hotspot="$featuredHotspot" />
             @endif
 
-            {{-- MORE ADS — Rest ab Rang 9 --}}
+            {{-- MORE ADS — Rest ab Rang 9, mit eingestreuten Hotspots --}}
             @php $moreAds = $organicAds->skip(5); @endphp
             @if($moreAds->isNotEmpty())
                 <div class="grid grid-cols-4 gap-3">
@@ -54,6 +54,16 @@
                             :rank="$i + 9"
                             :bookmarked="in_array($ad->id, $bookmarkedIds)"
                         />
+
+                        {{-- Nach jeder 8. Ad einen Hotspot einstreuen (zyklisch durch aktive) --}}
+                        @if(($i + 1) % 8 === 0 && $catalogHotspots->isNotEmpty())
+                            @php
+                                // zyklischer Index: 1. Einstreuung → Hotspot 0, 2. → Hotspot 1, ...
+                                $hsIndex = intdiv($i + 1, 8) - 1;
+                                $promoHotspot = $catalogHotspots[$hsIndex % $catalogHotspots->count()];
+                            @endphp
+                            <x-catalog.hotspot-promo :hotspot="$promoHotspot" />
+                        @endif
                     @endforeach
                 </div>
             @endif
@@ -77,7 +87,7 @@
         </div>
 
         {{-- RIGHT PANEL --}}
-        <x-catalog.right-panel :ads="$rightPanelAds" />
+        <x-catalog.right-panel :ads="$rightPanelAds" :hotspots="$catalogHotspots" />
 
     </div>
 

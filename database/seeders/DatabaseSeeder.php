@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             MerchantSeeder::class,
             AdSeeder::class,
+            HotspotSeeder::class,
         ]);
     }
 }

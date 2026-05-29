@@ -1,7 +1,7 @@
 {{-- Right Panel — Top Picks
      Props: $ads = Collection<Ad> (Model) ODER legacy $picks = array
 --}}
-@props(['ads' => null, 'picks' => []])
+@props(['ads' => null, 'picks' => [], 'hotspots' => null])
 
 @php
     // Rückwärtskompatibilität: wenn noch altes $picks-Array übergeben wird
@@ -9,7 +9,31 @@
 @endphp
 
 <div class="w-[220px] flex-shrink-0 overflow-y-auto" style="border-left:1px solid #1e1e1e;background:#0d0d0d;">
-
+    {{-- AKTIVE HOTSPOTS --}}
+    @if($hotspots && $hotspots->isNotEmpty())
+        <div class="px-4 py-3" style="border-bottom:1px solid #1e1e1e;">
+            <div class="flex items-center gap-2 text-[9px] tracking-[2px]" style="color:#DC2626;">
+                <span class="w-1.5 h-1.5 rounded-full inline-block live-dot" style="background:#DC2626;"></span>
+                AKTIVE HOTSPOTS
+            </div>
+        </div>
+        @foreach($hotspots as $hs)
+            <a href="{{ route('catalog.hotspots') }}"
+               class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors"
+               style="border-bottom:1px solid #1a1a1a;border-left:3px solid #DC2626;"
+               onmouseover="this.style.background='#141414'"
+               onmouseout="this.style.background='transparent'">
+                <span class="text-[20px] flex-shrink-0">{{ $hs->icon ?? '🔥' }}</span>
+                <div class="min-w-0">
+                    <div class="text-[11px] font-sans font-bold tracking-wider truncate" style="color:#e8e8e8;">{{ $hs->name }}</div>
+                    <div class="text-[8px] tracking-[1.5px] mt-0.5" style="color:#454745;">
+                        {{ $hs->ads_count }} ADS ·
+                        @if($hs->days_left !== null) NOCH {{ $hs->days_left }}T @else DAUERHAFT @endif
+                    </div>
+                </div>
+            </a>
+        @endforeach
+    @endif
     <div class="px-4 py-3" style="border-bottom:1px solid #1e1e1e;">
         <div class="text-[9px] tracking-[2px]" style="color:#454745;">SPONSORED // TOP PICKS</div>
     </div>

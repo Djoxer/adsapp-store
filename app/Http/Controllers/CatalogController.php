@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ad;
 use App\Models\Category;
+use App\Models\Hotspot;
 use App\Models\PremiumSlot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,7 +59,14 @@ class CatalogController extends Controller
             : collect();
 
         $organicAds    = $ads;
-        $hotspot       = ($q === '' && $catSlug === '') ? $ads->first() : null;
+        // Featured-Hotspot für den großen Banner: aktiver Hotspot mit nächstem Ablauf
+        // (null closes_at = dauerhaft → ans Ende, damit befristete zuerst dran sind)
+        $featuredHotspot = ($q === '' && $catSlug === '')
+            ? \App\Models\Hotspot::active()
+                ->withCount('ads')
+                ->orderByRaw('closes_at IS NULL, closes_at ASC')
+                ->first()
+            : null;
         $rightPanelAds = Ad::with(['images'])
             ->where('status', 'active')
             ->inRandomOrder()
@@ -66,6 +74,12 @@ class CatalogController extends Controller
             ->get();
 
         $bookmarkedIds = Auth::user()->bookmarks()->pluck('ad_id')->toArray();
+
+        // Aktive Hotspots für Catalog-Einbindung (Right-Panel + Inline-Einstreuung)
+        $catalogHotspots = \App\Models\Hotspot::active()
+            ->withCount('ads')
+            ->orderByDesc('opens_at')
+            ->get();
 
         // ── Für Filter-Bar ───────────────────────────────────────────
         $categories = Category::orderBy('name')->get();
@@ -76,8 +90,8 @@ class CatalogController extends Controller
             : null;
 
         return view('catalog.index', compact(
-            'premiumAds', 'organicAds', 'hotspot', 'rightPanelAds',
-            'bookmarkedIds', 'categories', 'activeCategory', 'q', 'sort'
+            'premiumAds', 'organicAds', 'featuredHotspot', 'rightPanelAds',
+            'bookmarkedIds', 'categories', 'activeCategory', 'q', 'sort', 'catalogHotspots'
         ));
     }
 
@@ -129,6 +143,35 @@ class CatalogController extends Controller
         ));
     }
 
-    public function hotspots() { return view('catalog.hotspots'); }
+    public function hotspots()
+    {
+        // Aktive Hotspots mit Ad-Count + aggregierten Stats
+        $active = Hotspot::active()
+            ->withCount('ads')
+            ->with(['ads' => fn($q) => $q->withCount([
+                'events as views' => fn($e) => $e->where('event_type', 'view'),
+            ])])
+            ->get()
+            ->map(function ($h) {
+                // Stats über zugeordnete Ads aggregieren (echt)
+                $h->total_views     = $h->ads->sum('views');
+                $h->total_bookmarks = $h->ads->sum(fn($ad) => $ad->bookmarkedBy()->count());
+                return $h;
+            });
+
+        $upcoming = Hotspot::upcoming()->orderBy('opens_at')->get();
+        $archived = Hotspot::archived()->orderByDesc('closes_at')->limit(4)->get();
+
+        // Stats-Panel (rechts)
+        $stats = [
+            'active_nodes'  => $active->count(),
+            'pending_queue' => $upcoming->count(),
+            'total_volume'  => $active->sum('ads_count'),
+            'uptime'        => '99.98', // Dummy — kein echtes Monitoring im MVP
+        ];
+
+        return view('catalog.hotspots', compact('active', 'upcoming', 'archived', 'stats'));
+    }
+
     public function analytics(){ return view('catalog.analytics'); }
 }

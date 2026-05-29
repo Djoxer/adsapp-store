@@ -59,6 +59,12 @@ class Ad extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function hotspots()
+    {
+        return $this->belongsToMany(Hotspot::class, 'hotspot_ads')
+            ->withPivot('added_at');
+    }
+
     // Convenience: Preis in Euro für Templates
     public function getPriceEuroAttribute(): string
     {
