@@ -1,10 +1,3 @@
-@if(Auth::check())
-    @if(Auth::user()->role === 'buyer')
-        <script>window.location = "{{ route('catalog') }}"</script>
-    @else
-        <script>window.location = "{{ route('dashboard') }}"</script>
-    @endif
-@endif
 <!DOCTYPE html>
 <html lang="de">
 <head>

@@ -56,7 +56,6 @@
                         $subNav = [
                             ['id'=>'profil',         'label'=>'PROFIL',             'icon'=>'profile', 'active'=>true,  'danger'=>false],
                             ['id'=>'sicherheit',     'label'=>'SICHERHEIT',         'icon'=>'lock',    'active'=>false, 'danger'=>false],
-                            ['id'=>'benachricht',    'label'=>'BENACHRICHTIGUNGEN', 'icon'=>'bell',    'active'=>false, 'danger'=>false],
                             ['id'=>'darstellung',    'label'=>'DARSTELLUNG',        'icon'=>'color',   'active'=>false, 'danger'=>false],
                             ['id'=>'datenschutz',    'label'=>'DATENSCHUTZ',        'icon'=>'hidden',  'active'=>false, 'danger'=>false],
                             ['id'=>'hilfe',          'label'=>'INFO / HILFE',       'icon'=>'info',    'active'=>false, 'danger'=>false],
@@ -114,7 +113,6 @@
 
                 @include('settings.sections.profile')
                 @include('settings.sections.security')
-                @include('settings.sections.notifications')
                 @include('settings.sections.delete-account')
                 @include('settings.sections.placeholder')
 
@@ -137,20 +135,6 @@
                 btn.style.background = active ? '#1a1200' : 'transparent';
                 btn.style.color = isDanger ? '#DC2626' : (active ? '#F5B700' : '#A1A1AA');
             });
-
-            // Benachrichtigungen als gesehen markieren
-            if (id === 'benachricht') {
-                fetch('{{ route('settings.notifications.seen') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json',
-                    }
-                }).then(() => {
-                    const badge = document.getElementById('notif-badge');
-                    if (badge) badge.style.display = 'none';
-                });
-            }
         }
 
         // Tab aus URL-Parameter öffnen (nach Funktionsdefinition!)

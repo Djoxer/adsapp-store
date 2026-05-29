@@ -66,7 +66,7 @@
     {{-- Bottom --}}
     <div class="py-2 overflow-x-hidden" style="border-top:1px solid #1e1e1e;">
         @foreach([
-            ['icon'=>'gear',   'label'=>'EINSTELLUNGEN', 'route'=>'profile.show'],
+            ['icon'=>'gear',   'label'=>'EINSTELLUNGEN', 'route'=>'settings'],
             ['icon'=>'info',   'label'=>'INFO',           'route'=>null],
             ['icon'=>'secure', 'label'=>'SECURITY',       'route'=>null],
         ] as $item)

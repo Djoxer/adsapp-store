@@ -67,13 +67,6 @@ class SettingsController extends Controller
         return back()->with('status', 'password-updated');
     }
 
-    // Notifications als gesehen markieren (AJAX vom Tab-Klick):
-    public function markNotificationsSeen()
-    {
-        Auth::user()->update(['notifications_seen_at' => now()]);
-        return response()->json(['ok' => true]);
-    }
-
     public function deleteAccount(Request $request)
     {
         $user = Auth::user();

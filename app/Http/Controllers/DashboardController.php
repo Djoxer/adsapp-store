@@ -13,6 +13,9 @@ class DashboardController extends Controller
     {
         $merchant = Auth::user()->merchant;
 
+        // Admin/Buyer haben keinen Merchant-Record → weiterleiten statt crashen
+        abort_unless($merchant, 403, 'Kein Händler-Profil für diesen Account.');
+
         // ── KPI 1: Aktive Ads ──────────────────────────────────────────
         $activeAdsCount = $merchant->ads()->where('status', 'active')->count();
 

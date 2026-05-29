@@ -35,6 +35,24 @@ class User extends Authenticatable
     public function isBuyer(): bool    { return $this->role === 'buyer'; }
     public function isAgency(): bool   { return $this->role === 'agency'; }
 
+    public function homeRoute(): string
+    {
+        return match($this->role) {
+            'admin'              => route('admin.dashboard'),
+            'merchant', 'agency' => route('dashboard'),
+            default              => route('catalog'),
+        };
+    }
+
+    public function homeLabel(): string
+    {
+        return match($this->role) {
+            'admin'              => 'ADMINISTRATION',
+            'merchant', 'agency' => 'DASHBOARD',
+            default              => '', // buyer hat keinen
+        };
+    }
+
     // 1:1 Relations — nur vorhanden wenn Rolle passt
     public function merchant()
     {

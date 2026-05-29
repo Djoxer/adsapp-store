@@ -9,7 +9,7 @@
             <div class="text-copy-neutral">{{ strtoupper(Auth::user()->name ?? 'OPERATOR') }} · <span class="text-brand-yellow">{{ strtoupper(Auth::user()->role ?? 'USER') }}</span></div>
         </div>
         {{-- Notifications --}}
-        <button onclick="window.location='{{ route('settings') }}?tab=benachricht'"
+        <button onclick="window.location='{{ route('notifications.index') }}'"
                 class="w-8 h-8 border border-line-warm flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors relative">
             <x-icons.bell class="w-4 h-4" />
             @if(Auth::user()->unread_leads_count > 0)
@@ -92,10 +92,10 @@
                 ['route' => 'ads.index',    'icon' => 'fav',       'label' => 'MEINE ADS'],
                 ['route' => 'ads.create',   'icon' => 'add',       'label' => 'AD ERSTELLEN'],
                 ['route' => 'orders.index', 'icon' => 'log',       'label' => 'BESTELLUNGEN'],
+                ['route' => 'notifications.index', 'icon' => 'bell', 'label' => 'BENACHRICHTIGUNGEN'],
                 ['route' => 'slots.index',  'icon' => 'badge',     'label' => 'PREMIUM SLOTS'],
                 ['route' => 'analytics.index','icon' => 'analyze', 'label' => 'ANALYTICS'],
                 ['route' => 'billing.index','icon' => 'cash',      'label' => 'ABRECHNUNGEN'],
-                ['route' => 'settings',     'icon' => 'controls',  'label' => 'EINSTELLUNGEN'],
             ];
         @endphp
 

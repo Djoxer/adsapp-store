@@ -60,11 +60,11 @@
                 </button>
 
                 {{-- Dashboard/Catalog Toggle — role-aware --}}
-                @if(in_array(Auth::user()->role, ['merchant','agency','admin']))
-                    <a href="{{ route('dashboard') }}"
+                @if(Auth::user()->homeLabel())
+                    <a href="{{ Auth::user()->homeRoute() }}"
                        class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
                         <x-icons.dashboard class="w-3.5 h-3.5" />
-                        DASHBOARD
+                        {{ Auth::user()->homeLabel() }}
                     </a>
                 @endif
 
