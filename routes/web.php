@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/ads/create',    [AdController::class, 'create'])->name('ads.create');
         Route::post('/ads',          [AdController::class, 'store'])->name('ads.store');
         Route::get('/ads/{ad}/edit', [AdController::class, 'edit'])->name('ads.edit');
+        Route::patch('/ads/{ad}/toggle-status', [AdController::class, 'toggleStatus'])->name('ads.toggle-status');
         Route::patch('/ads/{ad}',    [AdController::class, 'update'])->name('ads.update');
         Route::delete('/ads/{ad}',   [AdController::class, 'destroy'])->name('ads.destroy');
 

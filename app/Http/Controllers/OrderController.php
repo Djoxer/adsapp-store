@@ -15,12 +15,13 @@ class OrderController extends Controller
     {
         $merchant = Auth::user()->merchant;
 
-        // Leads = dwell-Events (Klicks zum Händler) auf eigene Ads
-        $leads = DB::table('ad_events')
+        $baseQuery = fn() => DB::table('ad_events')
             ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
-            ->leftJoin('users', 'ad_events.user_id', '=', 'users.id')
             ->where('ads.merchant_id', $merchant->id)
-            ->where('ad_events.event_type', 'dwell')
+            ->where('ad_events.event_type', 'dwell');
+
+        $leads = $baseQuery()
+            ->leftJoin('users', 'ad_events.user_id', '=', 'users.id')
             ->orderByDesc('ad_events.created_at')
             ->select(
                 'ad_events.id',
@@ -31,21 +32,20 @@ class OrderController extends Controller
             )
             ->paginate(15);
 
-        // Stats
-        $totalLeads = DB::table('ad_events')
+        $totalLeads  = $baseQuery()->count();
+        $leadsToday  = $baseQuery()->whereDate('ad_events.created_at', today())->count();
+        $leadsWeek   = $baseQuery()->where('ad_events.created_at', '>=', now()->subDays(7))->count();
+
+        // Grobe Conv-Rate: Sales / Dwells auf eigene Ads
+        $sales = DB::table('ad_events')
             ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
             ->where('ads.merchant_id', $merchant->id)
-            ->where('ad_events.event_type', 'dwell')
+            ->where('ad_events.event_type', 'sale')
             ->count();
 
-        $leadsToday = DB::table('ad_events')
-            ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
-            ->where('ads.merchant_id', $merchant->id)
-            ->where('ad_events.event_type', 'dwell')
-            ->whereDate('ad_events.created_at', today())
-            ->count();
+        $convRate = $totalLeads > 0 ? round(($sales / $totalLeads) * 100, 1) : 0;
 
-        return view('orders.index', compact('leads', 'totalLeads', 'leadsToday'));
+        return view('orders.index', compact('leads', 'totalLeads', 'leadsToday', 'leadsWeek', 'convRate'));
     }
 
     public function store(Request $request)

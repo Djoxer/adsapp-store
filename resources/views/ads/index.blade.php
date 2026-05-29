@@ -113,7 +113,7 @@
                                 default  => strtoupper($ad->status),
                             };
                         @endphp
-                        <span class="text-[9px] tracking-[1.5px] px-2 py-0.5 border font-sans font-bold"
+                        <span class="status-badge text-[9px] tracking-[1.5px] px-2 py-0.5 border font-sans font-bold"
                               style="{{ $statusStyle }}">{{ $statusLabel }}</span>
                     </div>
 
@@ -125,10 +125,13 @@
                            onmouseout="this.style.borderColor='#5B403F';this.style.color='#A1A1AA'">
                             <x-icons.edit class="w-3.5 h-3.5" />
                         </a>
-                        <button class="w-7 h-7 flex items-center justify-center transition-colors"
+                        <button class="w-7 h-7 flex items-center justify-center transition-colors toggle-status-btn"
+                                data-id="{{ $ad->id }}"
+                                data-status="{{ $ad->status }}"
                                 style="border:1px solid #5B403F;color:#A1A1AA;"
                                 onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
-                                onmouseout="this.style.borderColor='#5B403F';this.style.color='#A1A1AA'">
+                                onmouseout="this.style.borderColor='#5B403F';this.style.color='#A1A1AA'"
+                                title="{{ $ad->status === 'active' ? 'Pausieren' : 'Aktivieren' }}">
                             <x-dynamic-component :component="'icons.' . ($ad->status === 'active' ? 'hidden' : 'show')" class="w-3.5 h-3.5" />
                         </button>
                         <button class="w-7 h-7 flex items-center justify-center transition-colors"
@@ -247,6 +250,54 @@
         function closeDelete() {
             document.getElementById('delete-overlay').classList.add('hidden');
         }
+
+        document.querySelectorAll('.toggle-status-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const id = this.dataset.id;
+                const row = this.closest('[data-ad-id]') ?? this.closest('.grid');
+
+                try {
+                    const res = await fetch(`/ads/${id}/toggle-status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    if (!res.ok) {
+                        const err = await res.json();
+                        alert(err.error ?? 'Fehler beim Status-Wechsel.');
+                        return;
+                    }
+
+                    const data = await res.json();
+
+                    // Status-Badge in der Zeile aktualisieren
+                    const badge = this.closest('.grid').querySelector('.status-badge');
+                    if (badge) {
+                        badge.textContent = data.label;
+                        badge.style.cssText = data.statusStyle;
+                    }
+
+                    // Icon tauschen
+                    this.dataset.status = data.status;
+                    const icon = this.querySelector('svg');
+                    // Icon-Swap: einfachster Weg — ganzes Element neu laden würde SPA brauchen,
+                    // daher nur opacity-Feedback + title update als visuelles Signal
+                    this.title = data.status === 'active' ? 'Pausieren' : 'Aktivieren';
+                    this.style.borderColor = data.status === 'active' ? '#F5B700' : '#454745';
+                    this.style.color       = data.status === 'active' ? '#F5B700' : '#454745';
+                    setTimeout(() => {
+                        this.style.borderColor = '#5B403F';
+                        this.style.color       = '#A1A1AA';
+                    }, 800);
+
+                } catch (e) {
+                    console.error('Toggle failed:', e);
+                }
+            });
+        });
     </script>
 
 </x-app-layout>

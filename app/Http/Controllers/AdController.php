@@ -123,6 +123,27 @@ class AdController extends Controller
             ->with('status', 'ad-deleted');
     }
 
+    public function toggleStatus(Ad $ad)
+    {
+        abort_if($ad->merchant_id !== Auth::user()->merchant->id, 403);
+
+        // draft bleibt draft — nur über edit aktivierbar
+        if ($ad->status === 'draft') {
+            return response()->json(['status' => 'draft', 'error' => 'Draft-Ads können nur über Bearbeiten aktiviert werden.'], 422);
+        }
+
+        $ad->status = $ad->status === 'active' ? 'paused' : 'active';
+        $ad->save();
+
+        return response()->json([
+            'status'      => $ad->status,
+            'label'       => $ad->status === 'active' ? 'AKTIV' : 'PAUSIERT',
+            'statusStyle' => $ad->status === 'active'
+                ? 'border-color:#F5B700;color:#F5B700;'
+                : 'border-color:#454745;color:#454745;',
+        ]);
+    }
+
     public function show(Ad $ad)
     {
         // Nur aktive Ads sind öffentlich sichtbar
