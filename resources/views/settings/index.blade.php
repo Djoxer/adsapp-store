@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-settings-layout>
     <div class="p-6">
 
         {{-- HEADER --}}
@@ -141,4 +141,4 @@
         const urlTab = new URLSearchParams(window.location.search).get('tab');
         if (urlTab) showSection(urlTab);
     </script>
-</x-app-layout>
+</x-settings-layout>
