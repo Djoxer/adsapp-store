@@ -173,5 +173,81 @@ class CatalogController extends Controller
         return view('catalog.hotspots', compact('active', 'upcoming', 'archived', 'stats'));
     }
 
-    public function analytics(){ return view('catalog.analytics'); }
+    public function analytics()
+    {
+        $user = Auth::user();
+
+        // ── KPI-Cards (echt) ──
+        $viewsCount = \App\Models\AdEvent::where('user_id', $user->id)
+            ->where('event_type', 'view')
+            ->count();
+
+        $bookmarksCount = $user->bookmarks()->count();
+
+        $purchases = \App\Models\Order::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->get();
+        $purchasesCount = $purchases->count();
+
+        // ── Live-Feed: gemischte Aktivität chronologisch (echt) ──
+        // Bookmarks, Orders und Views zusammenführen, nach Zeit sortiert
+        $feedBookmarks = \App\Models\Ad::whereIn('id',
+            $user->bookmarks()->pluck('ad_id'))
+            ->with('images')
+            ->get()
+            ->map(fn($ad) => (object)[
+                'type'      => 'bookmark',
+                'ad'        => $ad,
+                'timestamp' => $ad->pivot->created_at ?? $ad->updated_at,
+                'label'     => 'GEMERKT',
+            ]);
+
+        $feedOrders = $purchases->load('ad.images')->map(fn($o) => (object)[
+            'type'      => 'order',
+            'ad'        => $o->ad,
+            'timestamp' => $o->created_at,
+            'label'     => 'KAUF',
+            'amount'    => $o->total_cents,
+        ]);
+
+        $feedViews = \App\Models\AdEvent::where('user_id', $user->id)
+            ->where('event_type', 'view')
+            ->latest('created_at')
+            ->limit(10)
+            ->get()
+            ->map(function ($e) {
+                $ad = \App\Models\Ad::with('images')->find($e->ad_id);
+                return $ad ? (object)[
+                    'type'      => 'view',
+                    'ad'        => $ad,
+                    'timestamp' => $e->created_at,
+                    'label'     => 'GESEHEN',
+                ] : null;
+            })
+            ->filter();
+
+        $activityFeed = $feedBookmarks
+            ->concat($feedOrders)
+            ->concat($feedViews)
+            ->sortByDesc('timestamp')
+            ->take(8)
+            ->values();
+
+        // ── Kategorie-Verteilung (echt, aus Käufen) ──
+        $catSplit = \App\Models\Order::where('orders.user_id', $user->id)
+            ->whereIn('orders.status', ['pending', 'confirmed'])
+            ->join('ads', 'orders.ad_id', '=', 'ads.id')
+            ->join('categories', 'ads.category_id', '=', 'categories.id')
+            ->selectRaw('categories.name, COUNT(*) as cnt, SUM(orders.total_cents) as total')
+            ->groupBy('categories.name')
+            ->orderByDesc('total')
+            ->get();
+
+        $totalSpent = $catSplit->sum('total');
+
+        return view('catalog.analytics', compact(
+            'viewsCount', 'bookmarksCount', 'purchasesCount',
+            'activityFeed', 'catSplit', 'totalSpent'
+        ));
+    }
 }
