@@ -46,15 +46,14 @@ class CatalogController extends Controller
         $ads = $query->get();
 
         // ── Catalog-Zonen ────────────────────────────────────────────
-        // Premium Strip — nur bei aktivem Filter NICHT anzeigen (Filter = organisch)
+        // Premium Strip — live geschaltete Slot-Buchungen
         $premiumAds = ($q === '' && $catSlug === '')
-            ? PremiumSlot::with(['ad.merchant', 'ad.images'])
-                ->where('status', 'active')
-                ->where('starts_at', '<=', now())
-                ->where('ends_at', '>=', now())
+            ? \App\Models\SlotBooking::live()
+                ->with(['ad.merchant', 'ad.images'])
+                ->orderBy('total_cents', 'desc') // teuerste/prominenteste zuerst
                 ->limit(3)
                 ->get()
-                ->map(fn($slot) => $slot->ad)
+                ->map(fn($booking) => $booking->ad)
                 ->filter()
             : collect();
 

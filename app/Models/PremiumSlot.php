@@ -10,25 +10,60 @@ class PremiumSlot extends Model
     use HasFactory;
 
     protected $fillable = [
-        'ad_id', 'merchant_id', 'price_cents',
-        'starts_at', 'ends_at', 'status',
+        'zone', 'position', 'base_price_cents',
+        'discount_pct', 'discount_until', 'empty_since',
     ];
 
     protected function casts(): array
     {
         return [
-            'starts_at' => 'datetime',
-            'ends_at'   => 'datetime',
+            'discount_until' => 'datetime',
+            'empty_since'    => 'datetime',
         ];
     }
 
-    public function ad()
+    public function bookings()
     {
-        return $this->belongsTo(Ad::class);
+        return $this->hasMany(SlotBooking::class);
     }
 
-    public function merchant()
+    // Aktuell live geschaltete Buchung (oder null wenn leer)
+    public function currentBooking()
     {
-        return $this->belongsTo(Merchant::class);
+        return $this->bookings()
+            ->where('status', 'live')
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>=', now())
+            ->first();
+    }
+
+    // Warteschlange: pending/approved Bookings nach queue_position
+    public function queue()
+    {
+        return $this->bookings()
+            ->whereIn('status', ['pending', 'approved'])
+            ->orderBy('queue_position');
+    }
+
+    // ── Rabatt-Logik ──
+    public function getHasDiscountAttribute(): bool
+    {
+        return $this->discount_pct
+            && $this->discount_until
+            && $this->discount_until->isFuture();
+    }
+
+    // Effektiver Tagespreis in Cent (mit Rabatt falls aktiv)
+    public function getEffectivePriceCentsAttribute(): int
+    {
+        if ($this->has_discount) {
+            return (int) round($this->base_price_cents * (1 - $this->discount_pct / 100));
+        }
+        return $this->base_price_cents;
+    }
+
+    public function getIsEmptyAttribute(): bool
+    {
+        return $this->currentBooking() === null;
     }
 }

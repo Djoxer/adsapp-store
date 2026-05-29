@@ -5,6 +5,7 @@ use App\Http\Controllers\AdEventController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SlotBookingController;
 use App\Http\Controllers\SlotController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BillingController;
@@ -32,7 +33,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/ads/{ad}',   [AdController::class, 'destroy'])->name('ads.destroy');
 
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-        Route::get('/slots', [SlotController::class, 'index'])->name('slots.index');
+        Route::get('/slots',      [SlotBookingController::class, 'index'])->name('slots.index');
+        Route::post('/slots/book',[SlotBookingController::class, 'store'])->name('slots.book');
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
