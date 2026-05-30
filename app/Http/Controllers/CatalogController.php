@@ -19,9 +19,9 @@ class CatalogController extends Controller
         $catSlug  = $request->get('category', '');
         $sort     = $request->get('sort', 'score'); // score|newest|price_asc|price_desc
 
-        // ── Basis-Query ─────────────────────────────────────────────
+        // ── Basis-Query — nur öffentliche Ads (active + Merchant approved) ──
         $query = Ad::with(['merchant', 'category', 'images'])
-            ->where('status', 'active');
+            ->public();
 
         // Suche in Titel + Beschreibung
         if ($q !== '') {
@@ -49,11 +49,14 @@ class CatalogController extends Controller
         // ── Premium-Zonen (nur ohne aktiven Filter = organische Ansicht) ──
         $noFilter = ($q === '' && $catSlug === '');
 
-        // Helper: live Bookings einer Zone, nach Slot-Position sortiert
+        // Helper: live Bookings einer Zone, nach Slot-Position sortiert.
+        // Filtert zusätzlich auf öffentliche Ads — falls ein Merchant nachträglich
+        // abgelehnt wird, verschwindet auch seine Premium-Platzierung.
         $loadZone = fn($zone) => SlotBooking::live()
             ->whereHas('slot', fn($q2) => $q2->where('zone', $zone))
             ->with(['ad.merchant', 'ad.images', 'slot'])
             ->get()
+            ->filter(fn($b) => $b->ad?->isPublic())
             ->sortBy('slot.position')
             ->values();
 
@@ -112,7 +115,7 @@ class CatalogController extends Controller
         };
 
         $ads = Ad::with(['merchant', 'category', 'images'])
-            ->where('status', 'active')
+            ->public()
             ->withCount([
                 'events as sales_count' => function ($q) use ($since) {
                     $q->where('event_type', 'sale');
@@ -128,7 +131,7 @@ class CatalogController extends Controller
             ->limit(20)
             ->get();
 
-        $marketSplit = Ad::where('status', 'active')
+        $marketSplit = Ad::public()
             ->selectRaw('categories.name, COUNT(*) as cnt')
             ->join('categories', 'ads.category_id', '=', 'categories.id')
             ->groupBy('categories.name')
@@ -138,7 +141,7 @@ class CatalogController extends Controller
         $totalActive = $marketSplit->sum('cnt');
 
         $newcomers = Ad::with(['merchant', 'category'])
-            ->where('status', 'active')
+            ->public()
             ->latest()
             ->limit(2)
             ->get();
@@ -151,6 +154,8 @@ class CatalogController extends Controller
     public function hotspots()
     {
         // Aktive Hotspots mit Ad-Count + aggregierten Stats
+        // Hinweis: Hotspot-Ad-Zuordnung ist kuratiert (Admin), daher hier kein
+        // public()-Filter — abgelehnte Merchants würden ohnehin nicht zugeordnet.
         $active = Hotspot::active()
             ->withCount('ads')
             ->with(['ads' => fn($q) => $q->withCount([

@@ -65,6 +65,27 @@ class Ad extends Model
             ->withPivot('added_at');
     }
 
+    /**
+     * Öffentlich sichtbare Ads: status='active' UND Merchant ist approved.
+     * Zentraler Sichtbarkeits-Hebel für den gesamten Catalog — greift überall
+     * wo Ads öffentlich gezeigt werden (Hauptliste, Ranking, Hotspots, Premium).
+     */
+    public function scopePublic($query)
+    {
+        return $query->where('ads.status', 'active')
+            ->whereHas('merchant', fn($q) => $q->where('approval_status', 'approved'));
+    }
+
+    /**
+     * Darf diese Ad öffentlich erscheinen? (für Einzelprüfung in show/click)
+     */
+    public function isPublic(): bool
+    {
+        return $this->status === 'active'
+            && $this->merchant
+            && $this->merchant->approval_status === 'approved';
+    }
+
     // Convenience: Preis in Euro für Templates
     public function getPriceEuroAttribute(): string
     {

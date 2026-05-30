@@ -44,17 +44,34 @@ class AdController extends Controller
 
         $categories = \App\Models\Category::orderBy('name')->get();
 
-        return view('ads.index', compact('ads', 'stats', 'categories'));
+        // Approval-Status fürs Banner in der View
+        $isApproved = $merchant->isApproved();
+
+        return view('ads.index', compact('ads', 'stats', 'categories', 'isApproved'));
     }
 
     public function create()
     {
+        // Ebene 1: Nicht-freigegebene Merchants können keine Ads erstellen
+        abort_unless(
+            Auth::user()->merchant->isApproved(),
+            403,
+            'Dein Händler-Account ist noch nicht freigegeben. Sobald ein Admin dich bestätigt hat, kannst du Ads schalten.'
+        );
+
         $categories = Category::orderBy('name')->get();
         return view('ads.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
+        // Ebene 1: Guard auch beim Speichern (falls jemand die create-Seite umgeht)
+        abort_unless(
+            Auth::user()->merchant->isApproved(),
+            403,
+            'Dein Händler-Account ist noch nicht freigegeben.'
+        );
+
         $request->validate([
             'title'       => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
@@ -163,8 +180,8 @@ class AdController extends Controller
 
     public function show(Ad $ad)
     {
-        // Nur aktive Ads sind öffentlich sichtbar
-        abort_if($ad->status !== 'active', 404);
+        // Ebene 2: öffentlich nur wenn active UND Merchant approved
+        abort_unless($ad->isPublic(), 404);
 
         $ad->load(['merchant', 'category', 'images', 'tags']);
 
@@ -185,7 +202,8 @@ class AdController extends Controller
 
     public function click(Ad $ad)
     {
-        abort_if($ad->status !== 'active', 404);
+        // Ebene 2: auch der Klick-Redirect nur für öffentliche Ads
+        abort_unless($ad->isPublic(), 404);
 
         // Click-Event → Score-Boost (wir nutzen 'dwell' als Gewicht-3-Signal,
         // da Enum kein 'click' hat — Klick zum Händler = starkes Interesse)

@@ -1,4 +1,9 @@
 <x-app-layout>
+    @unless($isApproved)
+        <div class="mb-4 px-4 py-3 text-[10px] tracking-[1.5px]" style="background:#1a0f0f;border:1px solid #DC2626;color:#DC2626;">
+            ⚠ ACCOUNT WARTET AUF FREIGABE — ADS KÖNNEN ERST NACH ADMIN-BESTÄTIGUNG ERSTELLT WERDEN
+        </div>
+    @endunless
     <div class="p-6 space-y-5">
 
         {{-- HEADER --}}
