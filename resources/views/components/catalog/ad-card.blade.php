@@ -1,14 +1,15 @@
 {{--
-    Ad Card Component — rank-aware sizing
+    Ad Card Component — einheitliche Größe (16:9), responsives Grid
     Props:
-      $ad   = Ad Model ODER legacy array [id, title, price, rank, score, merchant, description]
-      $size = 'featured' | 'medium' | 'small' | 'mini'
-      $rank = optionaler Override (für grid-position-basiertes Ranking)
+      $ad         = Ad Model ODER legacy array [id, title, price, rank, score, merchant, description]
+      $rank       = Rang-Nummer (Badge)
       $bookmarked = bool, ob bereits in Merkliste
+
+    Alle Karten gleich groß (col-span-1) — das hält das auto-fill-Raster lückenlos.
+    #1 wird über roten Border + Badge hervorgehoben, nicht über die Größe.
 --}}
 @props([
     'ad'         => [],
-    'size'       => 'medium',
     'rank'       => null,
     'bookmarked' => false,
 ])
@@ -33,11 +34,9 @@
     $borderStyle = $isTop
         ? 'border:2px solid #DC2626;'
         : 'border:1px solid #1e1e1e;';
-    $minH = $size === 'featured' ? 'min-height:320px;' : '';
 
     // JS-sicheres escaping für onclick
     $jsTitle = addslashes(e($adTitle));
-    $jsDesc  = addslashes(e($adMerch));
     $jsMerch = addslashes(e($adMerch));
 
     // Detail-URL
@@ -45,7 +44,7 @@
 @endphp
 
 <div class="relative overflow-hidden cursor-pointer group"
-     style="background:#141414;{{ $borderStyle }}{{ $minH }}"
+     style="background:#141414;{{ $borderStyle }}"
      onclick="openAdOverlay({
          id:{{ $adId }},
          title:'{{ $jsTitle }}',
@@ -93,38 +92,25 @@
            onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#A1A1AA'">→</a>
     </div>
 
-    @if($size === 'featured')
-        {{-- Featured: Gradient-Overlay mit Bottom-Text --}}
+    {{-- Bild — einheitlich 16:9 --}}
+    <div class="aspect-video w-full overflow-hidden flex items-center justify-center text-[7px]"
+         style="background:#1a1a1a;color:#2a2a2a;">
         @if($adImage)
             <img src="{{ Storage::url($adImage) }}" alt="{{ $adTitle }}"
-                 class="absolute inset-0 w-full h-full object-cover opacity-60">
+                 class="w-full h-full object-cover opacity-80">
         @else
-            <div class="absolute inset-0" style="background:linear-gradient(180deg,#1a1a1a 0%,#0f0f0f 100%);"></div>
+            IMG
         @endif
-        <div class="absolute bottom-0 left-0 right-0 p-4"
-             style="background:linear-gradient(0deg,rgba(10,5,5,0.95) 0%,transparent 100%);">
-            <div class="text-xl font-sans font-bold tracking-wider" style="color:#e8e8e8;">{{ $adTitle }}</div>
-            <div class="text-[11px] tracking-wider mt-1" style="color:#F5B700;">{{ $adPrice }}</div>
-        </div>
-    @else
-        {{-- Standard-Karten --}}
-        <div class="{{ $size === 'small' ? 'aspect-square' : 'aspect-video' }} w-full overflow-hidden flex items-center justify-center text-[7px]"
-             style="background:#1a1a1a;color:#2a2a2a;">
-            @if($adImage)
-                <img src="{{ Storage::url($adImage) }}" alt="{{ $adTitle }}"
-                     class="w-full h-full object-cover opacity-80">
-            @else
-                IMG
-            @endif
-        </div>
-        <div class="p-3">
-            <div class="text-[11px] font-sans font-semibold tracking-wider truncate" style="color:#e8e8e8;">{{ $adTitle }}</div>
-            <div class="text-[10px] mt-0.5" style="color:#F5B700;">{{ $adPrice }}</div>
-            @if($adScore)
-                <div class="text-[8px] tracking-wider mt-1" style="color:#454745;">SCORE {{ number_format($adScore,1) }}</div>
-            @endif
-        </div>
-    @endif
+    </div>
+
+    {{-- Text --}}
+    <div class="p-3">
+        <div class="text-[11px] font-sans font-semibold tracking-wider truncate" style="color:#e8e8e8;">{{ $adTitle }}</div>
+        <div class="text-[10px] mt-0.5" style="color:#F5B700;">{{ $adPrice }}</div>
+        @if($adScore)
+            <div class="text-[8px] tracking-wider mt-1" style="color:#454745;">SCORE {{ number_format($adScore,1) }}</div>
+        @endif
+    </div>
 
     {{-- Hover Glow --}}
     <div class="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"

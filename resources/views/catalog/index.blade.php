@@ -7,7 +7,7 @@
         {{-- ═══ MAIN FEED ═══ --}}
         <div class="flex-1 p-4 space-y-4 min-w-0">
 
-            {{-- PREMIUM STRIP — Zone A (FIFO Top-Strip, max 3) --}}
+            {{-- PREMIUM STRIP — Zone A (FIFO Top-Strip, max 3, feste 3 Spalten, ohne Rang) --}}
             @if($premiumZoneA->isNotEmpty())
                 <div class="grid grid-cols-3 gap-3">
                     @foreach($premiumZoneA as $i => $ad)
@@ -16,49 +16,25 @@
                 </div>
             @endif
 
-            {{-- ORGANIC GRID — Rang 4+ --}}
-            @if($organicAds->isNotEmpty())
-                <div class="grid grid-cols-3 gap-3">
-                    @foreach($organicAds->take(5) as $i => $ad)
-                        @php
-                            $pos  = $i + 4; // Rang beginnt bei 4
-                            $size = match($i) {
-                                0       => 'featured',
-                                1, 2    => 'medium',
-                                default => 'small',
-                            };
-                        @endphp
-                        <x-catalog.ad-card
-                            :ad="$ad"
-                            :size="$size"
-                            :rank="$pos"
-                            :bookmarked="in_array($ad->id, $bookmarkedIds)"
-                        />
-                    @endforeach
-                </div>
-            @endif
-
-            {{-- FEATURED HOTSPOT — Zone 04 --}}
+            {{-- FEATURED HOTSPOT — kuratierter Aufmacher, voller Streifen über dem Raster --}}
             @if($featuredHotspot)
                 <x-catalog.hotspot-banner :hotspot="$featuredHotspot" />
             @endif
 
-            {{-- MORE ADS — Rest ab Rang 9, mit eingestreuten Hotspots --}}
-            @php $moreAds = $organicAds->skip(5); @endphp
-            @if($moreAds->isNotEmpty())
-                <div class="grid grid-cols-4 gap-3">
-                    @foreach($moreAds as $i => $ad)
+            {{-- ORGANIC GRID — ein responsives Raster, Karten gleich groß, Rang ab #1.
+                 auto-fill: mehr Spalten bei mehr Breite statt größerer Karten. --}}
+            @if($organicAds->isNotEmpty())
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:0.75rem;">
+                    @foreach($organicAds as $i => $ad)
                         <x-catalog.ad-card
                             :ad="$ad"
-                            size="mini"
-                            :rank="$i + 9"
+                            :rank="$i + 1"
                             :bookmarked="in_array($ad->id, $bookmarkedIds)"
                         />
 
-                        {{-- Nach jeder 8. Ad einen Hotspot einstreuen (zyklisch durch aktive) --}}
+                        {{-- Nach jeder 8. Ad eine kompakte Hotspot-Karte einstreuen (zyklisch) --}}
                         @if(($i + 1) % 8 === 0 && $catalogHotspots->isNotEmpty())
                             @php
-                                // zyklischer Index: 1. Einstreuung → Hotspot 0, 2. → Hotspot 1, ...
                                 $hsIndex = intdiv($i + 1, 8) - 1;
                                 $promoHotspot = $catalogHotspots[$hsIndex % $catalogHotspots->count()];
                             @endphp
