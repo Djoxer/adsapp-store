@@ -6,6 +6,7 @@ use App\Models\Ad;
 use App\Models\Category;
 use App\Models\Hotspot;
 use App\Models\PremiumSlot;
+use App\Models\SlotBooking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,37 +46,42 @@ class CatalogController extends Controller
 
         $ads = $query->get();
 
-        // ── Catalog-Zonen ────────────────────────────────────────────
-        // Premium Strip — live geschaltete Slot-Buchungen
-        $premiumAds = ($q === '' && $catSlug === '')
-            ? \App\Models\SlotBooking::live()
-                ->with(['ad.merchant', 'ad.images'])
-                ->orderBy('total_cents', 'desc') // teuerste/prominenteste zuerst
-                ->limit(3)
-                ->get()
-                ->map(fn($booking) => $booking->ad)
-                ->filter()
+        // ── Premium-Zonen (nur ohne aktiven Filter = organische Ansicht) ──
+        $noFilter = ($q === '' && $catSlug === '');
+
+        // Helper: live Bookings einer Zone, nach Slot-Position sortiert
+        $loadZone = fn($zone) => SlotBooking::live()
+            ->whereHas('slot', fn($q2) => $q2->where('zone', $zone))
+            ->with(['ad.merchant', 'ad.images', 'slot'])
+            ->get()
+            ->sortBy('slot.position')
+            ->values();
+
+        // Zone A → Top-Strip: reine Ad-Objekte (premium-slot Component erwartet :ad), max 3
+        $premiumZoneA = $noFilter
+            ? $loadZone('A')->map(fn($b) => $b->ad)->filter()->take(3)->values()
             : collect();
 
-        $organicAds    = $ads;
+        // Zone B → rechte Aside: komplette Bookings (brauchen slot.position fürs Label), max 4
+        $premiumZoneB = $noFilter
+            ? $loadZone('B')->take(4)
+            : collect();
+
+        $organicAds = $ads;
+
         // Featured-Hotspot für den großen Banner: aktiver Hotspot mit nächstem Ablauf
         // (null closes_at = dauerhaft → ans Ende, damit befristete zuerst dran sind)
-        $featuredHotspot = ($q === '' && $catSlug === '')
-            ? \App\Models\Hotspot::active()
+        $featuredHotspot = $noFilter
+            ? Hotspot::active()
                 ->withCount('ads')
                 ->orderByRaw('closes_at IS NULL, closes_at ASC')
                 ->first()
             : null;
-        $rightPanelAds = Ad::with(['images'])
-            ->where('status', 'active')
-            ->inRandomOrder()
-            ->limit(4)
-            ->get();
 
         $bookmarkedIds = Auth::user()->bookmarks()->pluck('ad_id')->toArray();
 
         // Aktive Hotspots für Catalog-Einbindung (Right-Panel + Inline-Einstreuung)
-        $catalogHotspots = \App\Models\Hotspot::active()
+        $catalogHotspots = Hotspot::active()
             ->withCount('ads')
             ->orderByDesc('opens_at')
             ->get();
@@ -89,7 +95,7 @@ class CatalogController extends Controller
             : null;
 
         return view('catalog.index', compact(
-            'premiumAds', 'organicAds', 'featuredHotspot', 'rightPanelAds',
+            'premiumZoneA', 'premiumZoneB', 'organicAds', 'featuredHotspot',
             'bookmarkedIds', 'categories', 'activeCategory', 'q', 'sort', 'catalogHotspots'
         ));
     }
@@ -116,7 +122,7 @@ class CatalogController extends Controller
                     $q->where('event_type', 'dwell');
                     if ($since) $q->where('created_at', '>=', $since);
                 },
-                'bookmarkedBy as bookmarks_count', // ← korrigiert
+                'bookmarkedBy as bookmarks_count',
             ])
             ->orderByDesc('current_score')
             ->limit(20)

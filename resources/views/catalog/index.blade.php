@@ -7,10 +7,10 @@
         {{-- ═══ MAIN FEED ═══ --}}
         <div class="flex-1 p-4 space-y-4 min-w-0">
 
-            {{-- PREMIUM STRIP — nur bei gebuchten Slots --}}
-            @if($premiumAds->isNotEmpty())
+            {{-- PREMIUM STRIP — Zone A (FIFO Top-Strip, max 3) --}}
+            @if($premiumZoneA->isNotEmpty())
                 <div class="grid grid-cols-3 gap-3">
-                    @foreach($premiumAds as $i => $ad)
+                    @foreach($premiumZoneA as $i => $ad)
                         <x-catalog.premium-slot :ad="$ad" :rank="$i + 1" />
                     @endforeach
                 </div>
@@ -69,7 +69,7 @@
             @endif
 
             {{-- EMPTY STATE --}}
-            @if($premiumAds->isEmpty() && $organicAds->isEmpty())
+            @if($premiumZoneA->isEmpty() && $organicAds->isEmpty())
                 <div class="flex flex-col items-center justify-center py-32 space-y-3">
                     <div class="text-[9px] tracking-[3px]" style="color:#454745;">NO_ACTIVE_ADS_FOUND</div>
                     <div class="text-[8px] tracking-[2px]" style="color:#2a2a2a;">SIGNAL_EMPTY // CATALOG_VOID</div>
@@ -86,8 +86,8 @@
 
         </div>
 
-        {{-- RIGHT PANEL --}}
-        <x-catalog.right-panel :ads="$rightPanelAds" :hotspots="$catalogHotspots" />
+        {{-- RIGHT PANEL — Hotspots + Premium Zone B --}}
+        <x-catalog.right-panel :premiumSlots="$premiumZoneB" :hotspots="$catalogHotspots" />
 
     </div>
 

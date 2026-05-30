@@ -28,6 +28,11 @@ class Merchant extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'approval_reviewer_id');
+    }
+
     public function ads()
     {
         return $this->hasMany(Ad::class);
