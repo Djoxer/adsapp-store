@@ -103,17 +103,7 @@ class AdController extends Controller
             ]);
         }
 
-        // Tags — komma-getrennt parsen
-        if ($request->filled('tags')) {
-            $tags = collect(explode(',', $request->tags))
-                ->map(fn($t) => trim($t))
-                ->filter()
-                ->map(fn($name) => \App\Models\Tag::firstOrCreate(
-                    ['slug' => \Illuminate\Support\Str::slug($name)],
-                    ['name' => $name]
-                ));
-            $ad->tags()->sync($tags->pluck('id'));
-        }
+        $this->syncTags($ad, $request->tags);
 
         return redirect()->route('ads.index')
             ->with('status', 'ad-created');
@@ -123,6 +113,7 @@ class AdController extends Controller
     {
         // Nur eigene Ads editieren
         abort_if($ad->merchant_id !== Auth::user()->merchant->id, 403);
+        $ad->load('tags', 'images'); // für Vorbelegung im Formular
         $categories = Category::orderBy('name')->get();
         return view('ads.edit', compact('ad', 'categories'));
     }
@@ -138,12 +129,27 @@ class AdController extends Controller
             'category_id'  => ['required', 'exists:categories,id'],
             'deeplink_url' => ['required', 'url'],
             'status'       => ['required', 'in:active,paused,draft'],
+            'image'        => ['nullable', 'image', 'max:2048'],
         ]);
 
         $ad->update($request->only(
             'title', 'description', 'price_cents',
             'category_id', 'deeplink_url', 'status'
         ));
+
+        // Neues Bild ersetzt das alte (erstes Image-Record)
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store("ads/{$ad->id}", 'public');
+            $existing = $ad->images()->orderBy('position')->first();
+            if ($existing) {
+                $existing->update(['cache_path' => $path, 'remote_url' => null]);
+            } else {
+                $ad->images()->create(['remote_url' => null, 'cache_path' => $path, 'position' => 1]);
+            }
+        }
+
+        // Tags neu synchronisieren — fehlte vorher komplett
+        $this->syncTags($ad, $request->tags);
 
         return redirect()->route('ads.index')
             ->with('status', 'ad-updated');
@@ -161,11 +167,8 @@ class AdController extends Controller
     {
         abort_if($ad->merchant_id !== Auth::user()->merchant->id, 403);
 
-        // draft bleibt draft — nur über edit aktivierbar
-        if ($ad->status === 'draft') {
-            return response()->json(['status' => 'draft', 'error' => 'Draft-Ads können nur über Bearbeiten aktiviert werden.'], 422);
-        }
-
+        // draft + paused → active, active → paused.
+        // Der Auge-Button aktiviert also auch Entwürfe direkt.
         $ad->status = $ad->status === 'active' ? 'paused' : 'active';
         $ad->save();
 
@@ -216,5 +219,23 @@ class AdController extends Controller
 
         // Redirect zum echten Händler-Deeplink
         return redirect()->away($ad->deeplink_url);
+    }
+
+    /**
+     * Tags aus komma-getrenntem String parsen und synchronisieren.
+     * Leerer/null String → alle Tags entfernen (sync mit leerem Array).
+     */
+    private function syncTags(Ad $ad, ?string $tagString): void
+    {
+        $tagIds = collect(explode(',', (string) $tagString))
+            ->map(fn($t) => trim($t))
+            ->filter()
+            ->map(fn($name) => \App\Models\Tag::firstOrCreate(
+                ['slug' => \Illuminate\Support\Str::slug($name)],
+                ['name' => $name]
+            ))
+            ->pluck('id');
+
+        $ad->tags()->sync($tagIds);
     }
 }

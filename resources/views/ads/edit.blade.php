@@ -73,7 +73,7 @@
                                             style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">
                                         <option value="">— WÄHLEN —</option>
                                         @foreach($categories ?? [] as $cat)
-                                            <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
+                                            <option value="{{ $cat->id }}" {{ (string) old('category_id', $ad->category_id) === (string) $cat->id ? 'selected' : '' }}>
                                                 {{ strtoupper($cat->name) }}
                                             </option>
                                         @endforeach
@@ -100,7 +100,7 @@
                     {{-- Tags --}}
                     <div style="background:#271717;border:1px solid #5B403F;" class="p-5">
                         <div class="text-[9px] tracking-[3px] text-copy-ticker mb-4">TAGS // OPTIONAL</div>
-                        <input type="text" name="tags" value="{{ old('tags') }}"
+                        <input type="text" name="tags" value="{{ old('tags', $ad->tags->pluck('name')->implode(', ')) }}"
                                placeholder="GAMING, CHAIR, ERGONOMIC, HOME_OFFICE..."
                                class="w-full px-3 py-2.5 text-[11px] tracking-wider focus:outline-none transition-colors"
                                style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">
@@ -116,8 +116,11 @@
                     <div style="background:#271717;border:1px solid #5B403F;" class="p-5">
                         <div class="text-[9px] tracking-[3px] text-copy-ticker mb-4">AD_BILD</div>
 
+                        @php $currentImage = $ad->images->first()?->cache_path; @endphp
+
+                        {{-- Drop-Zone (versteckt wenn schon ein Bild existiert) --}}
                         <div id="drop-zone"
-                             class="aspect-square flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors"
+                             class="aspect-square flex-col items-center justify-center gap-3 cursor-pointer transition-colors {{ $currentImage ? 'hidden' : 'flex' }}"
                              style="background:#1a0f0f;border:2px dashed #5B403F;"
                              onmouseover="this.style.borderColor='#F5B700'"
                              onmouseout="this.style.borderColor='#5B403F'"
@@ -132,34 +135,37 @@
                         <input type="file" id="image-input" name="image" accept="image/*" class="hidden"
                                onchange="previewImage(this)">
 
-                        <div id="image-preview" class="hidden mt-3">
-                            <img id="preview-img" class="w-full aspect-square object-cover" style="border:1px solid #5B403F;">
+                        {{-- Preview: bestehendes Bild oder neu gewähltes --}}
+                        <div id="image-preview" class="{{ $currentImage ? '' : 'hidden' }} mt-0">
+                            <img id="preview-img"
+                                 src="{{ $currentImage ? asset('storage/' . $currentImage) : '' }}"
+                                 class="w-full aspect-square object-cover" style="border:1px solid #5B403F;">
                             <button type="button" onclick="clearImage()"
                                     class="mt-2 w-full text-[9px] tracking-[1.5px] py-1.5 transition-colors"
                                     style="border:1px solid #5B403F;color:#A1A1AA;"
                                     onmouseover="this.style.color='#DC2626';this.style.borderColor='#DC2626'"
                                     onmouseout="this.style.color='#A1A1AA';this.style.borderColor='#5B403F'">
-                                BILD ENTFERNEN
+                                BILD ERSETZEN
                             </button>
                         </div>
                     </div>
 
                     {{-- Status --}}
                     <div style="background:#271717;border:1px solid #5B403F;" class="p-5">
-                        <div class="text-[9px] tracking-[3px] text-copy-ticker mb-4">INITIAL_STATUS</div>
+                        <div class="text-[9px] tracking-[3px] text-copy-ticker mb-4">STATUS</div>
                         <div class="space-y-2">
-                            @foreach(['active'=>'AKTIV SCHALTEN','draft'=>'ALS ENTWURF'] as $val => $label)
-                                <label class="flex items-center gap-3 cursor-pointer group">
+                            @php $currentStatus = old('status', $ad->status); @endphp
+                            @foreach(['active'=>'AKTIV SCHALTEN','paused'=>'PAUSIERT','draft'=>'ALS ENTWURF'] as $val => $label)
+                                <label class="flex items-center gap-3 cursor-pointer status-option" data-value="{{ $val }}">
                                     <input type="radio" name="status" value="{{ $val }}"
-                                           {{ old('status', 'active') === $val ? 'checked' : '' }}
-                                           class="sr-only peer">
-                                    <div class="w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 transition-colors"
-                                         style="border-color:#5B403F;"
-                                         data-radio="{{ $val }}">
-                                        <div class="w-2 h-2 hidden peer-radio-check" style="background:#F5B700;"></div>
+                                           {{ $currentStatus === $val ? 'checked' : '' }}
+                                           class="sr-only" onchange="updateStatusRadios()">
+                                    <div class="status-dot w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                                         style="border-color:{{ $currentStatus === $val ? '#F5B700' : '#5B403F' }};">
+                                        <div class="status-fill w-2 h-2 {{ $currentStatus === $val ? '' : 'hidden' }}" style="background:#F5B700;"></div>
                                     </div>
-                                    <div class="text-[10px] tracking-[1.5px] transition-colors"
-                                         style="color:{{ old('status','active') === $val ? '#F5B700' : '#A1A1AA' }};">
+                                    <div class="status-label text-[10px] tracking-[1.5px] transition-colors"
+                                         style="color:{{ $currentStatus === $val ? '#F5B700' : '#A1A1AA' }};">
                                         {{ $label }}
                                     </div>
                                 </label>
@@ -203,9 +209,22 @@
             }
         }
         function clearImage() {
+            // Bild-Auswahl zurücksetzen → wieder Drop-Zone zeigen.
+            // Hinweis: das entfernt nur die NEUE Auswahl. Ein bereits gespeichertes
+            // Bild bleibt in der DB bis ein neues hochgeladen wird.
             document.getElementById('image-input').value = '';
             document.getElementById('drop-zone').classList.remove('hidden');
             document.getElementById('image-preview').classList.add('hidden');
+        }
+
+        // Radio-Optik: gefüllter Punkt + Farbe für die gewählte Option
+        function updateStatusRadios() {
+            document.querySelectorAll('.status-option').forEach(opt => {
+                const checked = opt.querySelector('input[type=radio]').checked;
+                opt.querySelector('.status-dot').style.borderColor   = checked ? '#F5B700' : '#5B403F';
+                opt.querySelector('.status-fill').classList.toggle('hidden', !checked);
+                opt.querySelector('.status-label').style.color       = checked ? '#F5B700' : '#A1A1AA';
+            });
         }
     </script>
 
