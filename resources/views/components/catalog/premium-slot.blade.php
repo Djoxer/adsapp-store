@@ -13,7 +13,7 @@
     $sPrice = $isModel
         ? number_format($src->price_cents / 100, 2, ',', '.') . ' €'
         : ($src['price'] ?? '');
-    $sImage = $isModel ? $src->images->first()?->path : null;
+    $sImage = $isModel ? $src->images->first()?->cache_path : null;
     $sMerch = $isModel ? ($src->merchant->company_name ?? 'SPONSOR_CORP') : 'SPONSOR_CORP';
     $sDesc  = $isModel ? $src->description : '';
     $sLabel = $src['label'] ?? ('SPONSORED_AD_0' . ($rank ?? '?'));
