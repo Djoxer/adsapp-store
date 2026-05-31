@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdController;
 use App\Http\Controllers\AdEventController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\HotspotController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SlotBookingController;
@@ -60,6 +61,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/catalog/ranking',   [CatalogController::class, 'ranking'])->name('catalog.ranking');
         Route::get('/catalog/hotspots',  [CatalogController::class, 'hotspots'])->name('catalog.hotspots');
         Route::get('/catalog/analytics', [CatalogController::class, 'analytics'])->name('catalog.analytics');
+        Route::get('/hotspots',          [HotspotController::class, 'index'])->name('catalog.hotspots');
+        Route::get('/hotspots/{slug}',   [HotspotController::class, 'show'])->name('catalog.hotspot.show');
     });
 
     // Ad Detail — public (aber nur active Ads)

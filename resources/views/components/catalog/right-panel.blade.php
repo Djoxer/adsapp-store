@@ -15,8 +15,8 @@
                 AKTIVE HOTSPOTS
             </div>
         </div>
-        @foreach($hotspots as $hs)
-            <a href="{{ route('catalog.hotspots') }}"
+        @foreach($hotspots->sortBy(fn($h) => $h->days_left ?? 9999)->take(3) as $hs)
+            <a href="{{ route('catalog.hotspot.show', $hs->slug) }}"
                class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors"
                style="border-bottom:1px solid #1a1a1a;border-left:3px solid #DC2626;"
                onmouseover="this.style.background='#141414'"

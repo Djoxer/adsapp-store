@@ -74,7 +74,7 @@
                                 </div>
 
                                 {{-- CTA --}}
-                                <a href="#"
+                                <a href="{{ route('catalog.hotspot.show', $h->slug) }}"
                                    class="block mt-4 text-center py-3 text-[11px] font-sans font-bold tracking-[2px] transition-colors"
                                    style="background:#DC2626;color:white;"
                                    onmouseover="this.style.background='#FF535B'"

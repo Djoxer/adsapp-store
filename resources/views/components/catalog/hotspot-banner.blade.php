@@ -2,7 +2,7 @@
      Props: $hotspot = Hotspot Model --}}
 @props(['hotspot'])
 
-<a href="{{ route('catalog.hotspots') }}"
+<a href="{{ route('catalog.hotspot.show', $hotspot->slug) }}"
    class="relative overflow-hidden cursor-pointer group block"
    style="border:2px solid rgba(220,38,38,0.7);background:#141414;">
 
