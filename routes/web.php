@@ -59,7 +59,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:buyer,merchant,agency,admin')->group(function () {
         Route::get('/catalog',           [CatalogController::class, 'index'])->name('catalog');
         Route::get('/catalog/ranking',   [CatalogController::class, 'ranking'])->name('catalog.ranking');
-        Route::get('/catalog/hotspots',  [CatalogController::class, 'hotspots'])->name('catalog.hotspots');
         Route::get('/catalog/analytics', [CatalogController::class, 'analytics'])->name('catalog.analytics');
         Route::get('/hotspots',          [HotspotController::class, 'index'])->name('catalog.hotspots');
         Route::get('/hotspots/{slug}',   [HotspotController::class, 'show'])->name('catalog.hotspot.show');
