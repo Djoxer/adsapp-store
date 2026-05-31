@@ -58,5 +58,21 @@
 <x-buyer.ad-overlay />
 <x-profile-overlay />
 
+<script>
+    function openAdOverlayFromCard(el) {
+        openAdOverlay({
+            id:          el.dataset.adId,
+            title:       el.dataset.adTitle,
+            price:       el.dataset.adPrice,
+            rank:        el.dataset.adRank  || null,
+            score:       el.dataset.adScore || '',
+            merchant:    el.dataset.adMerchant,
+            description: el.dataset.adDescription,
+            bookmarked:  el.dataset.adBookmarked === 'true',
+            image:       el.dataset.adImage || ''
+        });
+    }
+</script>
+
 </body>
 </html>

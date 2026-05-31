@@ -94,8 +94,16 @@ class AdController extends Controller
         ]);
 
         // Image Upload — später S3/Cloudflare, erstmal local
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store("ads/{$ad->id}", 'public');
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $file      = $request->file('image');
+            $filename  = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
+            $dir       = storage_path("app/public/ads/{$ad->id}");
+
+            if (!is_dir($dir)) mkdir($dir, 0755, true);
+
+            $file->move($dir, $filename);
+            $path = "ads/{$ad->id}/{$filename}";
+
             $ad->images()->create([
                 'remote_url' => null,
                 'cache_path' => $path,
@@ -138,14 +146,21 @@ class AdController extends Controller
         ));
 
         // Neues Bild ersetzt das alte (erstes Image-Record)
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store("ads/{$ad->id}", 'public');
-            $existing = $ad->images()->orderBy('position')->first();
-            if ($existing) {
-                $existing->update(['cache_path' => $path, 'remote_url' => null]);
-            } else {
-                $ad->images()->create(['remote_url' => null, 'cache_path' => $path, 'position' => 1]);
-            }
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $file      = $request->file('image');
+            $filename  = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
+            $dir       = storage_path("app/public/ads/{$ad->id}");
+
+            if (!is_dir($dir)) mkdir($dir, 0755, true);
+
+            $file->move($dir, $filename);
+            $path = "ads/{$ad->id}/{$filename}";
+
+            $ad->images()->create([
+                'remote_url' => null,
+                'cache_path' => $path,
+                'position'   => 1,
+            ]);
         }
 
         // Tags neu synchronisieren — fehlte vorher komplett

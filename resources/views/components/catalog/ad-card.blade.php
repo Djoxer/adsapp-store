@@ -4,9 +4,6 @@
       $ad         = Ad Model ODER legacy array [id, title, price, rank, score, merchant, description]
       $rank       = Rang-Nummer (Badge)
       $bookmarked = bool, ob bereits in Merkliste
-
-    Alle Karten gleich groß (col-span-1) — das hält das auto-fill-Raster lückenlos.
-    #1 wird über roten Border + Badge hervorgehoben, nicht über die Größe.
 --}}
 @props([
     'ad'         => [],
@@ -15,7 +12,6 @@
 ])
 
 @php
-    // Model oder Array — einheitliche Variablen
     $isModel  = $ad instanceof \App\Models\Ad;
     $adId     = $isModel ? $ad->id          : ($ad['id']          ?? 0);
     $adTitle  = $isModel ? $ad->title       : ($ad['title']       ?? '');
@@ -26,35 +22,24 @@
     $adMerch  = $isModel ? ($ad->merchant->company_name ?? '') : ($ad['merchant'] ?? '');
     $adDesc   = $isModel ? $ad->description : ($ad['description'] ?? '');
     $adRank   = $rank ?? ($ad['rank'] ?? null);
-
-    // Bild: erstes AdImage (cache_path) oder Placeholder
     $adImage  = $isModel ? $ad->images->first()?->cache_path : ($ad['image'] ?? null);
-
     $isTop    = $adRank === 1;
-    $borderStyle = $isTop
-        ? 'border:2px solid #DC2626;'
-        : 'border:1px solid #1e1e1e;';
-
-    // JS-sicheres escaping für onclick
-    $jsTitle = addslashes(e($adTitle));
-    $jsMerch = addslashes(e($adMerch));
-
-    // Detail-URL
+    $borderStyle = $isTop ? 'border:2px solid #DC2626;' : 'border:1px solid #1e1e1e;';
     $detailUrl = $adId ? route('ads.show', $adId) : '#';
 @endphp
 
 <div class="relative overflow-hidden cursor-pointer group"
      style="background:#141414;{{ $borderStyle }}"
-     onclick="openAdOverlay({
-         id:{{ $adId }},
-         title:'{{ $jsTitle }}',
-         price:'{{ $adPrice }}',
-         rank:{{ $adRank ?? 'null' }},
-         score:'{{ $adScore ?? '' }}',
-         merchant:'{{ $jsMerch }}',
-         description:'{{ addslashes(e($adDesc)) }}',
-         bookmarked:{{ json_encode($bookmarked) }}
-     })">
+     data-ad-id="{{ $adId }}"
+     data-ad-title="{{ e($adTitle) }}"
+     data-ad-price="{{ $adPrice }}"
+     data-ad-rank="{{ $adRank ?? '' }}"
+     data-ad-score="{{ $adScore ?? '' }}"
+     data-ad-merchant="{{ e($adMerch) }}"
+     data-ad-description="{{ e($adDesc) }}"
+     data-ad-image="{{ $adImage ? asset('storage/' . $adImage) : '' }}"
+     data-ad-bookmarked="{{ $bookmarked ? 'true' : 'false' }}"
+     onclick="openAdOverlayFromCard(this)">
 
     {{-- Rank Badge --}}
     @if($adRank)
@@ -64,25 +49,14 @@
         </div>
     @endif
 
-    {{-- Action-Buttons — top-right, stop propagation damit Card-Overlay nicht triggert --}}
+    {{-- Action-Buttons --}}
     <div class="absolute top-2 right-2 z-20 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        {{-- Lupe → Quick View (Overlay) --}}
-        <button onclick="event.stopPropagation(); openAdOverlay({
-                    id:{{ $adId }},
-                    title:'{{ $jsTitle }}',
-                    price:'{{ $adPrice }}',
-                    rank:{{ $adRank ?? 'null' }},
-                    score:'{{ $adScore ?? '' }}',
-                    merchant:'{{ $jsMerch }}',
-                    description:'{{ addslashes(e($adDesc)) }}',
-                    bookmarked:{{ json_encode($bookmarked) }}
-                })"
+        <button onclick="event.stopPropagation(); openAdOverlayFromCard(this.closest('[data-ad-id]'))"
                 title="QUICK_VIEW"
                 class="w-6 h-6 flex items-center justify-center text-[11px] transition-colors"
                 style="background:#111111;border:1px solid #2a2a2a;color:#A1A1AA;"
                 onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
                 onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#A1A1AA'">⌕</button>
-        {{-- Pfeil → Detail-Page --}}
         <a href="{{ $detailUrl }}"
            onclick="event.stopPropagation()"
            title="VOLLANSICHT"
@@ -92,11 +66,11 @@
            onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#A1A1AA'">→</a>
     </div>
 
-    {{-- Bild — einheitlich 16:9 --}}
+    {{-- Bild --}}
     <div class="aspect-video w-full overflow-hidden flex items-center justify-center text-[7px]"
          style="background:#1a1a1a;color:#2a2a2a;">
         @if($adImage)
-            <img src="{{ Storage::url($adImage) }}" alt="{{ $adTitle }}"
+            <img src="{{ asset('storage/' . $adImage) }}" alt="{{ e($adTitle) }}"
                  class="w-full h-full object-cover opacity-80">
         @else
             IMG

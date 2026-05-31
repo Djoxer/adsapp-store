@@ -43,16 +43,16 @@
                     @endphp
                     <div class="flex items-center gap-3 px-4 h-full cursor-pointer group"
                          style="border-right:1px solid #1a1a1a;"
-                         onclick="openAdOverlay({
-                     id:{{ $ad->id }},
-                     title:'{{ addslashes(e($ad->title)) }}',
-                     price:'{{ number_format($ad->price_cents/100,2,',','.') }} €',
-                     rank:null,
-                     score:'{{ number_format($score,1) }}',
-                     merchant:'{{ addslashes(e($ad->merchant->company_name ?? '')) }}',
-                     description:'{{ addslashes(e($ad->description)) }}',
-                     bookmarked:false
-                 })">
+                         data-ad-id="{{ $ad->id }}"
+                         data-ad-title="{{ e($ad->title) }}"
+                         data-ad-price="{{ number_format($ad->price_cents/100,2,',','.') }} €"
+                         data-ad-rank=""
+                         data-ad-score="{{ number_format($score,1) }}"
+                         data-ad-merchant="{{ e($ad->merchant->company_name ?? '') }}"
+                         data-ad-description="{{ e($ad->description) }}"
+                         data-ad-image="{{ $image ? asset('storage/' . $image) : '' }}"
+                         data-ad-bookmarked="false"
+                         onclick="openAdOverlayFromCard(this)">
                         <div class="ticker-thumb flex items-center justify-center text-[7px]" style="color:#2a2a2a;">
                             @if($image)
                                 <img src="{{ Storage::url($image) }}" class="w-full h-full object-cover">

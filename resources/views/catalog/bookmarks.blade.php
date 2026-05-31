@@ -23,17 +23,16 @@
                     <div id="bookmark-card-{{ $ad->id }}"
                          class="relative overflow-hidden cursor-pointer group"
                          style="background:#141414;border:1px solid #1e1e1e;border-left:3px solid #F5B700;"
-                         onclick="openAdOverlay({
-                 id:{{ $ad->id }},
-                 title:'{{ addslashes($ad->title) }}',
-                 price:'{{ $ad->price_euro }}',
-                 rank:null,
-                 score:'{{ $ad->current_score ?? '' }}',
-                 merchant:'{{ addslashes($ad->merchant->company_name ?? '') }}',
-                 description:'{{ addslashes(Str::limit($ad->description, 120)) }}',
-                 deeplink:'{{ $ad->deeplink_url }}',
-                 bookmarked:true
-             })">
+                         data-ad-id="{{ $ad->id }}"
+                         data-ad-title="{{ e($ad->title) }}"
+                         data-ad-price="{{ $ad->price_euro }}"
+                         data-ad-rank=""
+                         data-ad-score="{{ $ad->current_score ?? '' }}"
+                         data-ad-merchant="{{ e($ad->merchant->company_name ?? '') }}"
+                         data-ad-description="{{ e(Str::limit($ad->description, 120)) }}"
+                         data-ad-image="{{ $ad->images->first() ? asset('storage/' . $ad->images->first()->cache_path) : '' }}"
+                         data-ad-bookmarked="true"
+                         onclick="openAdOverlayFromCard(this)">
 
                         {{-- Image --}}
                         <div class="aspect-video w-full flex items-center justify-center text-[7px]"
