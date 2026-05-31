@@ -46,14 +46,16 @@
         @if($ad)
             <div style="border-bottom:1px solid #1a1a1a;border-left:3px solid #F5B700;"
                  class="cursor-pointer group relative"
-                 onclick="openAdOverlay({
-                     id:{{ $ad->id }},
-                     title:'{{ addslashes(e($ad->title)) }}',
-                     price:'{{ number_format($ad->price_cents / 100, 2, ',', '.') }} €',
-                     rank:null, score:null,
-                     merchant:'{{ addslashes(e($ad->merchant->company_name ?? 'SPONSOR')) }}',
-                     description:'{{ addslashes(e($ad->description)) }}'
-                 })">
+                 data-ad-id="{{ $ad->id }}"
+                 data-ad-title="{{ e($ad->title) }}"
+                 data-ad-price="{{ number_format($ad->price_cents / 100, 2, ',', '.') }} €"
+                 data-ad-rank=""
+                 data-ad-score=""
+                 data-ad-merchant="{{ e($ad->merchant->company_name ?? 'SPONSOR') }}"
+                 data-ad-description="{{ e($ad->description) }}"
+                 data-ad-image="{{ $pImage ? asset('storage/' . $pImage) : '' }}"
+                 data-ad-bookmarked="false"
+                 onclick="openAdOverlayFromCard(this)">
 
                 {{-- Position-Badge B-1 .. B-4 --}}
                 <div class="absolute top-2 left-2 z-10 text-[7px] tracking-[1.5px] px-1.5 py-0.5"

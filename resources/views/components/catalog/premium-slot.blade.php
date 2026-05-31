@@ -21,14 +21,16 @@
 
 <div class="relative overflow-hidden cursor-pointer group"
      style="background:#141414;border:1px solid #2a2a2a;border-left:3px solid #F5B700;"
-     onclick="openAdOverlay({
-         id:{{ $sId }},
-         title:'{{ addslashes(e($sTitle)) }}',
-         price:'{{ $sPrice }}',
-         rank:null, score:null,
-         merchant:'{{ addslashes(e($sMerch)) }}',
-         description:'{{ addslashes(e($sDesc)) }}'
-     })">
+     data-ad-id="{{ $sId }}"
+     data-ad-title="{{ e($sTitle) }}"
+     data-ad-price="{{ $sPrice }}"
+     data-ad-rank=""
+     data-ad-score=""
+     data-ad-merchant="{{ e($sMerch) }}"
+     data-ad-description="{{ e($sDesc) }}"
+     data-ad-image="{{ $sImage ? asset('storage/' . $sImage) : '' }}"
+     data-ad-bookmarked="false"
+     onclick="openAdOverlayFromCard(this)">
 
     <div class="flex items-center gap-3 p-3">
         <div class="w-10 h-10 flex-shrink-0 overflow-hidden flex items-center justify-center text-[7px] tracking-wider"
