@@ -63,22 +63,6 @@
         @endforeach
     </nav>
 
-    {{-- Bottom --}}
-    <div class="py-2 overflow-x-hidden" style="border-top:1px solid #1e1e1e;">
-        @foreach([
-            ['icon'=>'gear',   'label'=>'EINSTELLUNGEN', 'route'=>'settings'],
-            ['icon'=>'info',   'label'=>'INFO',           'route'=>null],
-            ['icon'=>'secure', 'label'=>'SECURITY',       'route'=>null],
-        ] as $item)
-            <a href="{{ $item['route'] ? route($item['route']) : '#' }}" class="nav-item">
-        <span class="nav-icon">
-            <x-dynamic-component :component="'icons.' . $item['icon']" class="w-5 h-5" />
-        </span>
-                <span class="nav-label">{{ $item['label'] }}</span>
-            </a>
-        @endforeach
-    </div>
-
 </aside>
 
 <script>

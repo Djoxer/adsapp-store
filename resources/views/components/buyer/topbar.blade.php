@@ -1,21 +1,27 @@
 <style>
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .logo-blink {
+        white-space: nowrap;
+    }
     .logo-blink::after {
         content:'■'; color:#FF535B; font-size:10px; margin-left:6px;
+        display: inline-block; vertical-align: baseline;
         animation: blink 1.2s step-end infinite;
     }
 </style>
 
-<nav class="fixed top-0 left-0 right-0 h-[64px] grid grid-cols-3 items-center px-7 border-b-2 border-line-yellow bg-black z-[150]">
+<nav class="fixed top-0 left-0 right-0 h-[64px] px-7 border-b-2 border-line-yellow bg-black z-[150]"
+     style="display:grid; grid-template-columns:280px 1fr 260px; align-items:center;">
 
     {{-- Col 1: Logo — links --}}
     <a href="{{ route('catalog') }}"
-       class="font-sans font-bold text-4xl italic tracking-[3px] text-brand-red no-underline logo-blink leading-none mt-1 justify-self-start inline-block">
+       class="font-sans font-bold text-4xl italic tracking-[3px] text-brand-red no-underline logo-blink justify-self-start whitespace-nowrap"
+       style="line-height:1;">
         ADSAPP.STORE
     </a>
 
     {{-- Col 2: Search — exakt zentriert --}}
-    <form method="GET" action="{{ route('catalog') }}" class="relative justify-self-center" style="width:350px;">
+    <form method="GET" action="{{ route('catalog') }}" class="relative justify-self-center" style="width:350px;max-width:100%;">
         {{-- Kategorie + Sort aus aktuellem State erhalten --}}
         @if(request('category'))
             <input type="hidden" name="category" value="{{ request('category') }}">
@@ -67,6 +73,24 @@
                         {{ Auth::user()->homeLabel() }}
                     </a>
                 @endif
+
+                {{-- Einstellungen --}}
+                <a href="{{ route('settings') }}"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
+                    <x-icons.gear class="w-3.5 h-3.5" /> EINSTELLUNGEN
+                </a>
+
+                {{-- Info --}}
+                <a href="#"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
+                    <x-icons.info class="w-3.5 h-3.5" /> INFO
+                </a>
+
+                {{-- Security --}}
+                <a href="#"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
+                    <x-icons.secure class="w-3.5 h-3.5" /> SECURITY
+                </a>
 
                 {{-- Logout --}}
                 <form method="POST" action="{{ route('logout') }}">

@@ -46,8 +46,8 @@
 
 {{-- MAIN WRAP --}}
 <div id="catalog-wrap" class="fixed right-0 bottom-[50px] top-[64px]"
-     style="left:var(--sidebar-collapsed); transition:left 0.28s cubic-bezier(0.4,0,0.2,1);">
-    <div id="catalog-main" class="h-full overflow-y-auto overflow-x-hidden">
+     style="left:var(--sidebar-collapsed); transition:left 0.28s cubic-bezier(0.4,0,0.2,1); min-width:900px;">
+    <div id="catalog-main" class="h-full overflow-y-auto overflow-x-auto">
         {{ $slot }}
     </div>
 </div>

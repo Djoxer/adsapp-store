@@ -1,31 +1,51 @@
 @props(['categories' => collect(), 'activeCategory' => null, 'sort' => 'score'])
 
 <div class="sticky top-0 z-30 flex items-center justify-between gap-4 px-5 py-2.5"
-     style="background:rgba(17,17,17,0.97);border-bottom:1px solid #1e1e1e;backdrop-filter:blur(8px);">
+     style="background:rgba(17,17,17,0.97);border-bottom:1px solid #1e1e1e;backdrop-filter:blur(8px);min-width:900px;">
 
-    {{-- Kategorie-Buttons — aus DB --}}
-    <div class="flex items-center gap-2 overflow-x-auto" style="scrollbar-width:none;">
+    {{-- Kategorie-Buttons mit Scroll-Pfeilen --}}
+    <div class="flex items-center gap-1" style="min-width:0;flex:1;">
 
-        {{-- ALLE --}}
-        <a href="{{ route('catalog', array_filter(['q' => request('q'), 'sort' => $sort])) }}"
-           class="flex-shrink-0 px-4 py-1.5 text-[10px] tracking-[1.5px] border transition-colors"
-           style="{{ $activeCategory === null
-               ? 'border-color:#F5B700;color:#F5B700;'
-               : 'border-color:#2a2a2a;color:#A1A1AA;' }}">
-            ALLE
-        </a>
+        {{-- Pfeil Links --}}
+        <button id="cat-scroll-left"
+                onclick="document.getElementById('cat-scroll').scrollBy({left:-200,behavior:'smooth'})"
+                class="flex-shrink-0 w-6 h-6 flex items-center justify-center transition-colors"
+                style="color:#454745;border:1px solid #2a2a2a;"
+                onmouseover="this.style.color='#F5B700';this.style.borderColor='#F5B700'"
+                onmouseout="this.style.color='#454745';this.style.borderColor='#2a2a2a'">
+            <span style="font-size:10px;">◀</span>
+        </button>
 
-        @foreach($categories as $cat)
-            <a href="{{ route('catalog', array_filter(['q' => request('q'), 'category' => $cat->slug, 'sort' => $sort])) }}"
+        {{-- Scrollbare Chip-Row --}}
+        <div id="cat-scroll" class="flex items-center gap-2 overflow-x-auto" style="scrollbar-width:none;scroll-behavior:smooth;">
+
+            <a href="{{ route('catalog', array_filter(['q' => request('q'), 'sort' => $sort])) }}"
                class="flex-shrink-0 px-4 py-1.5 text-[10px] tracking-[1.5px] border transition-colors"
-               style="{{ $activeCategory?->slug === $cat->slug
-               ? 'border-color:#F5B700;color:#F5B700;'
-               : 'border-color:#2a2a2a;color:#A1A1AA;' }}"
-               onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
-               onmouseout="this.style.borderColor='{{ $activeCategory?->slug === $cat->slug ? '#F5B700' : '#2a2a2a' }}';this.style.color='{{ $activeCategory?->slug === $cat->slug ? '#F5B700' : '#A1A1AA' }}'">
-                {{ strtoupper($cat->name) }}
+               style="{{ $activeCategory === null ? 'border-color:#F5B700;color:#F5B700;' : 'border-color:#2a2a2a;color:#A1A1AA;' }}">
+                ALLE
             </a>
-        @endforeach
+
+            @foreach($categories as $cat)
+                <a href="{{ route('catalog', array_filter(['q' => request('q'), 'category' => $cat->slug, 'sort' => $sort])) }}"
+                   class="flex-shrink-0 px-4 py-1.5 text-[10px] tracking-[1.5px] border transition-colors"
+                   style="{{ $activeCategory?->slug === $cat->slug ? 'border-color:#F5B700;color:#F5B700;' : 'border-color:#2a2a2a;color:#A1A1AA;' }}"
+                   onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                   onmouseout="this.style.borderColor='{{ $activeCategory?->slug === $cat->slug ? '#F5B700' : '#2a2a2a' }}';this.style.color='{{ $activeCategory?->slug === $cat->slug ? '#F5B700' : '#A1A1AA' }}'">
+                    {{ strtoupper($cat->name) }}
+                </a>
+            @endforeach
+
+        </div>
+
+        {{-- Pfeil Rechts --}}
+        <button id="cat-scroll-right"
+                onclick="document.getElementById('cat-scroll').scrollBy({left:200,behavior:'smooth'})"
+                class="flex-shrink-0 w-6 h-6 flex items-center justify-center transition-colors"
+                style="color:#454745;border:1px solid #2a2a2a;"
+                onmouseover="this.style.color='#F5B700';this.style.borderColor='#F5B700'"
+                onmouseout="this.style.color='#454745';this.style.borderColor='#2a2a2a'">
+            <span style="font-size:10px;">▶</span>
+        </button>
 
     </div>
 
@@ -35,9 +55,7 @@
         @foreach(['score'=>'RELEVANZ','newest'=>'NEUESTE','price_asc'=>'PREIS ↑','price_desc'=>'PREIS ↓'] as $val => $label)
             <a href="{{ route('catalog', array_filter(['q' => request('q'), 'category' => request('category'), 'sort' => $val])) }}"
                class="text-[10px] tracking-[1.5px] transition-colors"
-               style="{{ $sort === $val
-               ? 'color:#F5B700;border-bottom:1px solid rgba(245,183,0,0.4);'
-               : 'color:#454745;' }}"
+               style="{{ $sort === $val ? 'color:#F5B700;border-bottom:1px solid rgba(245,183,0,0.4);' : 'color:#454745;' }}"
                onmouseover="this.style.color='#F5B700'"
                onmouseout="this.style.color='{{ $sort === $val ? '#F5B700' : '#454745' }}'">
                 {{ $label }}
