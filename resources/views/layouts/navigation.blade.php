@@ -63,6 +63,12 @@
                     @endif
                 @endif
 
+                {{-- Einstellungen --}}
+                <a href="{{ route('settings') }}"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors border-t border-line-warm">
+                    <x-icons.gear class="w-3.5 h-3.5" /> EINSTELLUNGEN
+                </a>
+
                 {{-- Logout --}}
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

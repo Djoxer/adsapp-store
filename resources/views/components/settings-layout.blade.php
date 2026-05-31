@@ -34,7 +34,7 @@
         </div>
 
         {{-- Zurück zur App (rollenkorrekt via homeRoute) --}}
-        <a href="{{ Auth::user()->homeRoute() }}"
+        <a href="{{ route('catalog') }}"
            class="flex items-center gap-2 px-4 py-2 text-[10px] tracking-[1.5px] border border-line-warm text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors">
             <x-icons.raster class="w-3.5 h-3.5" /> ZUR APP
         </a>
