@@ -35,7 +35,7 @@
              style="background:#1a1a1a;border:1px solid #2a2a2a;color:#2a2a2a;">
             @if($sImage)
                 <img src="{{ Storage::url($sImage) }}" alt="{{ $sTitle }}"
-                     class="w-full h-full object-cover">
+                     class="w-full h-full object-cover pointer-events-none">
             @else
                 IMG
             @endif

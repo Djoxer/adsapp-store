@@ -65,7 +65,7 @@
                      style="background:#141414;border-bottom:1px solid #1a1a1a;color:#2a2a2a;">
                     @if($pImage)
                         <img src="{{ asset('storage/' . $pImage) }}" alt="{{ $ad->title }}"
-                             class="w-full h-full object-cover opacity-80">
+                             class="w-full h-full object-cover opacity-80 pointer-events-none">
                     @else
                         IMG
                     @endif
