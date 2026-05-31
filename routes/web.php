@@ -81,7 +81,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
     Route::delete('/settings/account', [SettingsController::class, 'deleteAccount'])->name('settings.account.delete');
     Route::post('/settings/notifications/seen', [SettingsController::class, 'markNotificationsSeen'])->name('settings.notifications.seen');
-
+    Route::get('/help', [\App\Http\Controllers\HelpController::class, 'index'])->name('help');
+    Route::get('/privacy', [\App\Http\Controllers\HelpController::class, 'privacy'])->name('privacy');
 });
 
 require __DIR__.'/auth.php';

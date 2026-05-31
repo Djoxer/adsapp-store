@@ -39,10 +39,10 @@ export default {
                     yellow:      '#F5B700',
                 },
                 copy: {
-                    warm:        '#5B403F',
+                    warm:        '#888888',
                     neutral:     '#A1A1AA',
-                    soft:        '#FFB3B1',
-                    ticker:      '#454745',
+                    soft:        '#e8e8e8',
+                    ticker:      '#999999',
                 },
             },
         },

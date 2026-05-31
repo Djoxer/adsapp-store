@@ -80,16 +80,10 @@
                     <x-icons.gear class="w-3.5 h-3.5" /> EINSTELLUNGEN
                 </a>
 
-                {{-- Info --}}
-                <a href="#"
+                {{-- Help --}}
+                <a href="{{ route('help') }}"
                    class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
-                    <x-icons.info class="w-3.5 h-3.5" /> INFO
-                </a>
-
-                {{-- Security --}}
-                <a href="#"
-                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
-                    <x-icons.secure class="w-3.5 h-3.5" /> SECURITY
+                    <x-icons.quest class="w-3.5 h-3.5" /> HILFE
                 </a>
 
                 {{-- Logout --}}

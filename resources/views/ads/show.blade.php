@@ -5,9 +5,9 @@
         {{-- Breadcrumb / Back --}}
         <a href="{{ route('catalog') }}"
            class="inline-flex items-center gap-2 text-[9px] tracking-[2px] mb-4 transition-colors"
-           style="color:#454745;"
+           style="color:#999999;"
            onmouseover="this.style.color='#F5B700'"
-           onmouseout="this.style.color='#454745'">
+           onmouseout="this.style.color='#999999'">
             &larr; ZURÜCK_ZUM_KATALOG
         </a>
 
@@ -17,7 +17,7 @@
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-4" style="border-bottom:1px solid #2a2a2a;">
                 <div>
-                    <div class="text-[9px] tracking-[2px]" style="color:#454745;">
+                    <div class="text-[9px] tracking-[2px]" style="color:#999999;">
                         AD_DETAIL // {{ strtoupper($ad->category->name ?? 'UNCATEGORIZED') }}
                     </div>
                     <div class="text-2xl font-sans font-bold tracking-wider mt-1" style="color:#e8e8e8;">
@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-[9px] tracking-[1.5px]" style="color:#454745;">SCORE</div>
+                    <div class="text-[9px] tracking-[1.5px]" style="color:#999999;">SCORE</div>
                     <div class="text-3xl font-sans font-bold" style="color:#F5B700;">
                         {{ number_format((float) $ad->current_score, 1) }}
                     </div>
@@ -43,7 +43,7 @@
                             <img src="{{ Storage::url($ad->images->first()->cache_path) }}"
                                  alt="{{ $ad->title }}" class="w-full h-full object-cover">
                         @else
-                            <span class="text-[10px] tracking-[2px]" style="color:#454745;">NO_IMAGE</span>
+                            <span class="text-[10px] tracking-[2px]" style="color:#999999;">NO_IMAGE</span>
                         @endif
                     </div>
                     {{-- Weitere Bilder als Thumbnails --}}
@@ -61,23 +61,23 @@
                 {{-- Info --}}
                 <div class="flex flex-col gap-5">
                     <div>
-                        <div class="text-[9px] tracking-[2px] mb-1" style="color:#454745;">PREIS</div>
+                        <div class="text-[9px] tracking-[2px] mb-1" style="color:#999999;">PREIS</div>
                         <div class="text-3xl font-sans font-bold" style="color:#F5B700;">{{ $ad->price_euro }}</div>
                     </div>
 
                     <div>
-                        <div class="text-[9px] tracking-[2px] mb-1" style="color:#454745;">BESCHREIBUNG</div>
+                        <div class="text-[9px] tracking-[2px] mb-1" style="color:#999999;">BESCHREIBUNG</div>
                         <div class="text-[12px] leading-relaxed" style="color:#A1A1AA;">{{ $ad->description }}</div>
                     </div>
 
                     <div>
-                        <div class="text-[9px] tracking-[2px] mb-1" style="color:#454745;">HÄNDLER</div>
+                        <div class="text-[9px] tracking-[2px] mb-1" style="color:#999999;">HÄNDLER</div>
                         <div class="text-[12px]" style="color:#A1A1AA;">{{ $ad->merchant->company_name ?? '—' }}</div>
                     </div>
 
                     @if($ad->tags->isNotEmpty())
                         <div>
-                            <div class="text-[9px] tracking-[2px] mb-2" style="color:#454745;">TAGS</div>
+                            <div class="text-[9px] tracking-[2px] mb-2" style="color:#999999;">TAGS</div>
                             <div class="flex flex-wrap gap-1.5">
                                 @foreach($ad->tags as $tag)
                                     <span class="text-[9px] tracking-wider px-2 py-0.5"
@@ -113,7 +113,7 @@
 
             {{-- Rechtliches / Footer-Info --}}
             <div class="px-6 py-4 text-[9px] tracking-wider leading-relaxed"
-                 style="border-top:1px solid #2a2a2a;color:#454745;">
+                 style="border-top:1px solid #2a2a2a;color:#999999;">
                 HINWEIS: AdsApp ist eine Ad-Aggregations-Plattform. Der Klick auf "ZUM HÄNDLER"
                 leitet zur externen Seite des Anbieters weiter. AdsApp ist nicht Vertragspartner
                 des beworbenen Angebots.

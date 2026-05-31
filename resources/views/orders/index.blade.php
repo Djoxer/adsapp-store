@@ -30,7 +30,7 @@
             @foreach(['LEADS' => 'leads', 'BESTELLUNGEN' => 'orders'] as $label => $tab)
                 <button onclick="switchTab('{{ $tab }}')" id="tab-{{ $tab }}"
                         class="px-5 py-2.5 text-[10px] tracking-[2px] font-sans font-bold transition-colors tab-btn"
-                        style="{{ $tab === 'leads' ? 'border-bottom:2px solid #F5B700;color:#F5B700;margin-bottom:-1px;' : 'color:#454745;border-bottom:2px solid transparent;margin-bottom:-1px;' }}">
+                        style="{{ $tab === 'leads' ? 'border-bottom:2px solid #F5B700;color:#F5B700;margin-bottom:-1px;' : 'color:#999999;border-bottom:2px solid transparent;margin-bottom:-1px;' }}">
                     {{ $label }}
                 </button>
             @endforeach
@@ -56,7 +56,7 @@
                          onmouseover="this.style.background='rgba(44,27,27,0.6)'"
                          onmouseout="this.style.background='transparent'">
 
-                        <div class="text-[9px] tracking-wider font-sans font-bold" style="color:#454745;">
+                        <div class="text-[9px] tracking-wider font-sans font-bold" style="color:#999999;">
                             #{{ str_pad($lead->id, 5, '0', STR_PAD_LEFT) }}
                         </div>
 
@@ -64,7 +64,7 @@
                             <div class="text-[11px] font-sans font-semibold tracking-wider truncate" style="color:#e8e8e8;">
                                 {{ $lead->ad_title }}
                             </div>
-                            <div class="text-[9px] tracking-wider mt-0.5" style="color:#454745;">
+                            <div class="text-[9px] tracking-wider mt-0.5" style="color:#999999;">
                                 AD_{{ str_pad($lead->ad_id, 4, '0', STR_PAD_LEFT) }}
                             </div>
                         </div>
@@ -77,7 +77,7 @@
                             <div class="text-[10px] tracking-wider" style="color:#A1A1AA;">
                                 {{ \Carbon\Carbon::parse($lead->created_at)->format('d.m.Y') }}
                             </div>
-                            <div class="text-[9px] tracking-wider mt-0.5" style="color:#454745;">
+                            <div class="text-[9px] tracking-wider mt-0.5" style="color:#999999;">
                                 {{ \Carbon\Carbon::parse($lead->created_at)->format('H:i') }} UHR
                             </div>
                         </div>
@@ -97,14 +97,14 @@
                     <div class="flex flex-col items-center justify-center py-16 gap-4">
                         <x-icons.signal class="w-10 h-10" style="color:#2a1a1a;" />
                         <div class="text-[10px] tracking-[2px] text-copy-ticker">KEINE LEADS VORHANDEN</div>
-                        <div class="text-[9px] tracking-wider" style="color:#454745;">Leads entstehen wenn Käufer auf deine Ads klicken.</div>
+                        <div class="text-[9px] tracking-wider" style="color:#999999;">Leads entstehen wenn Käufer auf deine Ads klicken.</div>
                     </div>
                 @endforelse
             </div>
 
             {{-- Pagination Leads --}}
             @if($leads->hasPages())
-                <div class="flex items-center justify-between text-[9px] tracking-[1.5px] mt-3" style="color:#454745;">
+                <div class="flex items-center justify-between text-[9px] tracking-[1.5px] mt-3" style="color:#999999;">
                     <div>ZEIGE {{ $leads->firstItem() }}–{{ $leads->lastItem() }} VON {{ $leads->total() }} LEADS</div>
                     <div class="flex gap-1">
                         @if(!$leads->onFirstPage())
@@ -141,7 +141,7 @@
                 <div class="flex flex-col items-center justify-center py-16 gap-4">
                     <x-icons.cash class="w-10 h-10" style="color:#2a1a1a;" />
                     <div class="text-[10px] tracking-[2px] text-copy-ticker">BESTELLUNGEN // COMING SOON</div>
-                    <div class="text-[9px] tracking-wider" style="color:#454745;">In-App-Checkout ab v2. Aktuell leitet AdsApp direkt zum Händler-Shop.</div>
+                    <div class="text-[9px] tracking-wider" style="color:#999999;">In-App-Checkout ab v2. Aktuell leitet AdsApp direkt zum Händler-Shop.</div>
                 </div>
             </div>
         </div>
@@ -158,7 +158,7 @@
                     btn.style.color = '#F5B700';
                 } else {
                     btn.style.borderBottom = '2px solid transparent';
-                    btn.style.color = '#454745';
+                    btn.style.color = '#999999';
                 }
             });
         }

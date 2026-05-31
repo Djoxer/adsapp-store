@@ -27,7 +27,7 @@
             @foreach([
                 ['label'=>'GESAMT ADS', 'value'=>$stats['total'],  'sub'=>'ALLE EINTRÄGE',     'color'=>'#A1A1AA'],
                 ['label'=>'AKTIV',      'value'=>$stats['active'], 'sub'=>'LIVE IM CATALOG',   'color'=>'#F5B700'],
-                ['label'=>'PAUSIERT',   'value'=>$stats['paused'], 'sub'=>'NICHT SICHTBAR',    'color'=>'#454745'],
+                ['label'=>'PAUSIERT',   'value'=>$stats['paused'], 'sub'=>'NICHT SICHTBAR',    'color'=>'#999999'],
                 ['label'=>'ENTWURF',    'value'=>$stats['draft'],  'sub'=>'NICHT VERÖFFENTL.', 'color'=>'#DC2626'],
             ] as $stat)
                 <div class="p-4 relative overflow-hidden" style="background:#271717;border:1px solid #5B403F;">
@@ -67,7 +67,7 @@
                         </option>
                     @endforeach
                 </select>
-                <div class="absolute right-2 inset-y-0 flex items-center pointer-events-none" style="color:#454745;">
+                <div class="absolute right-2 inset-y-0 flex items-center pointer-events-none" style="color:#999999;">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                     <input type="hidden" name="category" value="{{ request('category') }}">
                 @endif
                 <div class="relative">
-                    <div class="absolute left-2.5 inset-y-0 flex items-center pointer-events-none" style="color:#454745;">
+                    <div class="absolute left-2.5 inset-y-0 flex items-center pointer-events-none" style="color:#999999;">
                         <x-icons.search class="w-3.5 h-3.5" />
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}"
@@ -94,9 +94,9 @@
                 @if(request('search'))
                     <a href="{{ route('ads.index', array_merge(request()->except('search'), ['page'=>1])) }}"
                        class="text-[9px] tracking-wider transition-colors"
-                       style="color:#454745;"
+                       style="color:#999999;"
                        onmouseover="this.style.color='#DC2626'"
-                       onmouseout="this.style.color='#454745'">✕</a>
+                       onmouseout="this.style.color='#999999'">✕</a>
                 @endif
             </form>
         </div>
@@ -124,7 +124,7 @@
                      onmouseout="this.style.background='transparent'">
 
                     <div class="w-9 h-9 flex items-center justify-center text-[7px] flex-shrink-0"
-                         style="background:#1a0f0f;border:1px solid #5B403F;color:#454745;">
+                         style="background:#1a0f0f;border:1px solid #5B403F;color:#999999;">
                         @if($ad->images->first())
                             <img src="{{ asset('storage/' . $ad->images->first()->cache_path) }}" class="w-full h-full object-cover">
                         @else
@@ -134,7 +134,7 @@
 
                     <div class="px-3 min-w-0">
                         <div class="text-[11px] font-sans font-semibold tracking-wider truncate" style="color:#e8e8e8;">{{ $ad->title }}</div>
-                        <div class="text-[9px] tracking-wider mt-0.5" style="color:#454745;">ID_{{ str_pad($ad->id, 4, '0', STR_PAD_LEFT) }}</div>
+                        <div class="text-[9px] tracking-wider mt-0.5" style="color:#999999;">ID_{{ str_pad($ad->id, 4, '0', STR_PAD_LEFT) }}</div>
                     </div>
 
                     <div class="text-[11px] tracking-wider font-sans font-bold" style="color:#F5B700;">{{ $ad->price_euro }}</div>
@@ -150,9 +150,9 @@
                         @php
                             $statusStyle = match($ad->status) {
                                 'active'  => 'border-color:#F5B700;color:#F5B700;',
-                                'paused'  => 'border-color:#454745;color:#454745;',
+                                'paused'  => 'border-color:#999999;color:#999999;',
                                 'draft'   => 'border-color:#DC2626;color:#DC2626;',
-                                default   => 'border-color:#454745;color:#454745;',
+                                default   => 'border-color:#999999;color:#999999;',
                             };
                             $statusLabel = match($ad->status) {
                                 'active' => 'AKTIV',
@@ -210,7 +210,7 @@
         </div>
 
         {{-- Pagination --}}
-        <div class="flex items-center justify-between text-[9px] tracking-[1.5px]" style="color:#454745;">
+        <div class="flex items-center justify-between text-[9px] tracking-[1.5px]" style="color:#999999;">
             <div>
                 ZEIGE {{ $ads->firstItem() ?? 0 }}–{{ $ads->lastItem() ?? 0 }} VON {{ $ads->total() }} EINTRÄGEN
             </div>
@@ -265,7 +265,7 @@
                     Folgende Ad wird permanent gelöscht:
                 </div>
                 <div id="delete-ad-title" class="text-[12px] font-sans font-bold tracking-wider my-3" style="color:#e8e8e8;"></div>
-                <div class="text-[10px] tracking-wider" style="color:#454745;">Diese Aktion kann nicht rückgängig gemacht werden.</div>
+                <div class="text-[10px] tracking-wider" style="color:#999999;">Diese Aktion kann nicht rückgängig gemacht werden.</div>
             </div>
             <div class="px-6 py-4 flex gap-3 justify-end" style="border-top:1px solid #2a2a2a;">
                 <button onclick="closeDelete()"
@@ -334,8 +334,8 @@
                     // Icon-Swap: einfachster Weg — ganzes Element neu laden würde SPA brauchen,
                     // daher nur opacity-Feedback + title update als visuelles Signal
                     this.title = data.status === 'active' ? 'Pausieren' : 'Aktivieren';
-                    this.style.borderColor = data.status === 'active' ? '#F5B700' : '#454745';
-                    this.style.color       = data.status === 'active' ? '#F5B700' : '#454745';
+                    this.style.borderColor = data.status === 'active' ? '#F5B700' : '#999999';
+                    this.style.color       = data.status === 'active' ? '#F5B700' : '#999999';
                     setTimeout(() => {
                         this.style.borderColor = '#5B403F';
                         this.style.color       = '#A1A1AA';

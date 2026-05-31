@@ -61,7 +61,7 @@
                                                class="w-full pl-7 pr-3 py-2.5 text-[11px] tracking-wider focus:outline-none transition-colors"
                                                style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">
                                     </div>
-                                    <div class="text-[9px] mt-1" style="color:#454745;">EINGABE IN CENT — 24900 = €249,00</div>
+                                    <div class="text-[9px] mt-1" style="color:#999999;">EINGABE IN CENT — 24900 = €249,00</div>
                                     @error('price_cents')
                                     <div class="mt-1 text-[10px] tracking-wider" style="color:#DC2626;">{{ $message }}</div>
                                     @enderror
@@ -104,7 +104,7 @@
                                placeholder="GAMING, CHAIR, ERGONOMIC, HOME_OFFICE..."
                                class="w-full px-3 py-2.5 text-[11px] tracking-wider focus:outline-none transition-colors"
                                style="background:#1a0f0f;border:1px solid #5B403F;color:#e8e8e8;">
-                        <div class="text-[9px] mt-1.5" style="color:#454745;">KOMMA-GETRENNT — VERBESSERT AUFFINDBARKEIT IM CATALOG</div>
+                        <div class="text-[9px] mt-1.5" style="color:#999999;">KOMMA-GETRENNT — VERBESSERT AUFFINDBARKEIT IM CATALOG</div>
                     </div>
 
                 </div>
@@ -126,7 +126,7 @@
                              onmouseout="this.style.borderColor='#5B403F'"
                              onclick="document.getElementById('image-input').click()">
                             <x-icons.photo class="w-8 h-8" style="color:#5B403F;" />
-                            <div class="text-[9px] tracking-[2px] text-center" style="color:#454745;">
+                            <div class="text-[9px] tracking-[2px] text-center" style="color:#999999;">
                                 KLICKEN ODER<br>DRAG & DROP
                             </div>
                             <div class="text-[8px] tracking-[1px]" style="color:#2a2a2a;">JPG / PNG / WEBP — MAX 2MB</div>

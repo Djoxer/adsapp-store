@@ -16,12 +16,12 @@
                 left:           '0',
                 right:          '0',
                 bottom:         '0',
-                zIndex:         '9000',        // Toast (100000) liegt drüber
+                zIndex:         '9000',
                 display:        'none',
                 alignItems:     'center',
                 justifyContent: 'center',
-                background:     'transparent', // kein Backdrop
-                pointerEvents:  'none',        // Klicks gehen durch
+                background:     'transparent',
+                pointerEvents:  'none',
             });
 
             document.body.appendChild(overlayEl);
@@ -36,40 +36,42 @@
                         background:#111111;border:1px solid #2a2a2a;
                         pointer-events:all;
                         box-shadow:0 0 60px rgba(245,183,0,0.25), 0 0 120px rgba(245,183,0,0.12);">
-                <button onclick="closeAdOverlay()"
-                        style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#454745;z-index:10;"
-                        onmouseover="this.style.color='#DC2626'" onmouseout="this.style.color='#454745'">&times;</button>
 
-                <div style="border-bottom:1px solid #2a2a2a;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;">
-                    <div>
-                        <div style="font-size:9px;letter-spacing:2px;color:#454745;font-family:'Share Tech Mono',monospace;">AD_DETAIL // RANK #${data.rank ?? '—'}</div>
-                        <div style="font-size:20px;font-family:'Rajdhani',sans-serif;font-weight:700;color:#e8e8e8;letter-spacing:2px;margin-top:4px;">${data.title}</div>
+                <button onclick="closeAdOverlay()"
+                        style="position:absolute;top:8px;right:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:#1a1a1a;border:1px solid #2a2a2a;cursor:pointer;color:#999999;z-index:10;font-size:16px;line-height:1;"
+                        onmouseover="this.style.borderColor='#DC2626';this.style.color='#DC2626'"
+                        onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#999999'">&times;</button>
+
+                <div style="border-bottom:1px solid #2a2a2a;padding:16px 48px 16px 24px;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="min-width:0;overflow:hidden;">
+                        <div style="font-size:9px;letter-spacing:2px;color:#999999;font-family:'Share Tech Mono',monospace;">AD_DETAIL // RANK #${data.rank ?? '—'}</div>
+                        <div style="font-size:20px;font-family:'Rajdhani',sans-serif;font-weight:700;color:#e8e8e8;letter-spacing:2px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${data.title}</div>
                     </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:9px;letter-spacing:1.5px;color:#454745;font-family:'Share Tech Mono',monospace;">SCORE</div>
+                    <div style="text-align:right;flex-shrink:0;margin-left:16px;">
+                        <div style="font-size:9px;letter-spacing:1.5px;color:#999999;font-family:'Share Tech Mono',monospace;">SCORE</div>
                         <div style="font-size:24px;font-family:'Rajdhani',sans-serif;font-weight:700;color:#F5B700;">${data.score ?? '—'}</div>
                     </div>
                 </div>
 
-                <div style="padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-                    <div style="aspect-ratio:1;background:#1a1a1a;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;">
+                <div style="padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+                    <div style="aspect-ratio:1;background:#1a1a1a;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;overflow:hidden;">
                         ${data.image
                 ? `<img src="${data.image}" style="width:100%;height:100%;object-fit:cover;">`
-                : `<span style="font-size:10px;letter-spacing:2px;color:#454745;font-family:'Share Tech Mono',monospace;">NO_IMAGE</span>`
+                : `<span style="font-size:10px;letter-spacing:2px;color:#999999;font-family:'Share Tech Mono',monospace;">NO_IMAGE</span>`
             }
                     </div>
-                    <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div style="display:flex;flex-direction:column;gap:16px;min-width:0;overflow:hidden;">
                         <div>
-                            <div style="font-size:9px;letter-spacing:2px;color:#454745;margin-bottom:4px;font-family:'Share Tech Mono',monospace;">PREIS</div>
+                            <div style="font-size:9px;letter-spacing:2px;color:#999999;margin-bottom:4px;font-family:'Share Tech Mono',monospace;">PREIS</div>
                             <div style="font-size:28px;font-family:'Rajdhani',sans-serif;font-weight:700;color:#F5B700;">${data.price}</div>
                         </div>
                         <div>
-                            <div style="font-size:9px;letter-spacing:2px;color:#454745;margin-bottom:4px;font-family:'Share Tech Mono',monospace;">BESCHREIBUNG</div>
-                            <div style="font-size:11px;letter-spacing:1px;color:#A1A1AA;line-height:1.6;font-family:'Share Tech Mono',monospace;">${data.description ?? '—'}</div>
+                            <div style="font-size:9px;letter-spacing:2px;color:#999999;margin-bottom:4px;font-family:'Share Tech Mono',monospace;">BESCHREIBUNG</div>
+                            <div style="font-size:11px;letter-spacing:1px;color:#A1A1AA;line-height:1.6;font-family:'Share Tech Mono',monospace;max-height:120px;overflow-y:auto;word-break:break-word;">${data.description ?? '—'}</div>
                         </div>
                         <div>
-                            <div style="font-size:9px;letter-spacing:2px;color:#454745;margin-bottom:4px;font-family:'Share Tech Mono',monospace;">HÄNDLER</div>
-                            <div style="font-size:11px;letter-spacing:1px;color:#A1A1AA;font-family:'Share Tech Mono',monospace;">${data.merchant ?? '—'}</div>
+                            <div style="font-size:9px;letter-spacing:2px;color:#999999;margin-bottom:4px;font-family:'Share Tech Mono',monospace;">HÄNDLER</div>
+                            <div style="font-size:11px;letter-spacing:1px;color:#A1A1AA;font-family:'Share Tech Mono',monospace;word-break:break-word;">${data.merchant ?? '—'}</div>
                         </div>
                         <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
                             <a href="/ads/${data.id}/click" target="_blank"
@@ -97,7 +99,6 @@
         `;
 
             overlay.style.display = 'flex';
-            // View-Event tracken
             fetch('/events/track', {
                 method: 'POST',
                 headers: {
@@ -143,21 +144,21 @@
                 toast = document.createElement('div');
                 toast.id = 'bookmark-toast';
                 Object.assign(toast.style, {
-                    position:   'fixed',
-                    bottom:     '80px',
-                    right:      '24px',
-                    zIndex:     '100000', // über allem
-                    padding:    '8px 16px',
-                    fontSize:   '10px',
+                    position:      'fixed',
+                    bottom:        '80px',
+                    right:         '24px',
+                    zIndex:        '100000',
+                    padding:       '8px 16px',
+                    fontSize:      '10px',
                     letterSpacing: '2px',
-                    fontFamily: 'monospace',
-                    border:     '1px solid',
-                    transition: 'opacity 0.2s ease',
-                    pointerEvents: 'none', // Toast selbst nicht klickbar
+                    fontFamily:    'monospace',
+                    border:        '1px solid',
+                    transition:    'opacity 0.2s ease',
+                    pointerEvents: 'none',
                 });
                 document.body.appendChild(toast);
             }
-            toast.textContent    = added ? '\u2726 MERKLISTE +1' : '\u2726 ENTFERNT';
+            toast.textContent       = added ? '\u2726 MERKLISTE +1' : '\u2726 ENTFERNT';
             toast.style.background  = added ? '#1a1200' : '#141414';
             toast.style.borderColor = added ? '#F5B700' : '#454745';
             toast.style.color       = added ? '#F5B700' : '#A1A1AA';

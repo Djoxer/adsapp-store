@@ -69,6 +69,12 @@
                     <x-icons.gear class="w-3.5 h-3.5" /> EINSTELLUNGEN
                 </a>
 
+                {{-- Help --}}
+                <a href="{{ route('help') }}"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-ink-surface hover:text-brand-yellow transition-colors border-t border-line-warm">
+                    <x-icons.quest class="w-3.5 h-3.5" /> HILFE
+                </a>
+
                 {{-- Logout --}}
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -120,12 +126,6 @@
     </nav>
 
     <div class="border-t border-line-warm py-3">
-        <a href="#" class="flex items-center gap-3 px-5 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:text-brand-yellow hover:bg-ink-surface transition-colors">
-        <span class="w-4 h-4 flex-shrink-0">
-            <x-icons.quest class="w-4 h-4" />
-        </span>
-            SUPPORT
-        </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="w-full flex items-center gap-3 px-5 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:text-brand-red hover:bg-ink-surface transition-colors">

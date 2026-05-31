@@ -56,9 +56,7 @@
                         $subNav = [
                             ['id'=>'profil',         'label'=>'PROFIL',             'icon'=>'profile', 'active'=>true,  'danger'=>false],
                             ['id'=>'sicherheit',     'label'=>'SICHERHEIT',         'icon'=>'lock',    'active'=>false, 'danger'=>false],
-                            ['id'=>'darstellung',    'label'=>'DARSTELLUNG',        'icon'=>'color',   'active'=>false, 'danger'=>false],
                             ['id'=>'datenschutz',    'label'=>'DATENSCHUTZ',        'icon'=>'hidden',  'active'=>false, 'danger'=>false],
-                            ['id'=>'hilfe',          'label'=>'INFO / HILFE',       'icon'=>'info',    'active'=>false, 'danger'=>false],
                             ['id'=>'konto-loeschen', 'label'=>'KONTO LÖSCHEN',      'icon'=>'delete',  'active'=>false, 'danger'=>true],
                         ];
                     @endphp
