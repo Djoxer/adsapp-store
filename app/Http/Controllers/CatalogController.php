@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ad;
+use App\Models\Bookmark;
 use App\Models\Category;
 use App\Models\Hotspot;
 use App\Models\PremiumSlot;
@@ -81,7 +82,9 @@ class CatalogController extends Controller
                 ->first()
             : null;
 
-        $bookmarkedIds = Auth::user()->bookmarks()->pluck('ad_id')->toArray();
+        $bookmarkedIds = Auth::check()
+            ? Bookmark::where('user_id', Auth::id())->pluck('ad_id')->toArray()
+            : [];
 
         // Aktive Hotspots für Catalog-Einbindung (Right-Panel + Inline-Einstreuung)
         $catalogHotspots = Hotspot::active()

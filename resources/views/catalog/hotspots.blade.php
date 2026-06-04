@@ -169,7 +169,7 @@
             </div>
 
             {{-- CREATE HOTSPOT (Merchant/Agency) --}}
-            @if(in_array(auth()->user()->role, ['merchant','agency','admin']))
+            @if(auth()->check() && in_array(auth()->user()->role, ['merchant','agency','admin']))
                 <a href="#"
                    class="flex items-center justify-center gap-2 py-3 text-[11px] font-sans font-bold tracking-[2px] transition-colors"
                    style="background:#DC2626;color:white;"

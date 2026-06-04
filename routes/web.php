@@ -15,17 +15,36 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('catalog')
-        : view('welcome');
-});
+// ── PUBLIC ──────────────────────────────────────────────────────────────────
 
+// Root → Catalog (Gäste sehen Catalog direkt)
+Route::get('/', [CatalogController::class, 'index'])->name('catalog');
+
+// Catalog-Seiten (kein Auth erforderlich)
+Route::get('/catalog', [CatalogController::class, 'index']);
+Route::get('/catalog/ranking', [CatalogController::class, 'ranking'])->name('catalog.ranking');
+Route::get('/hotspots', [HotspotController::class, 'index'])->name('catalog.hotspots');
+Route::get('/hotspots/{slug}', [HotspotController::class, 'show'])->name('catalog.hotspot.show');
+Route::get('/ads/{ad}', [AdController::class, 'show'])->name('ads.show');
+Route::get('/ads/{ad}/click', [AdController::class, 'click'])->name('ads.click');
 Route::post('/events/track', [AdEventController::class, 'track'])->name('events.track');
 
-Route::middleware('auth')->group(function () {
+// Ad-Detail + Deeplink-Click
+Route::get('/ads/{ad}',             [AdController::class, 'show'])->name('ads.show');
+Route::get('/ads/{ad}/click',       [AdController::class, 'click'])->name('ads.click');
 
-    // Admin — nur role:admin
+// Event-Tracking (wird per JS gefeuert, auch für Gäste sinnvoll)
+Route::post('/events/track', [AdEventController::class, 'track'])->name('events.track');
+
+// ── AUTH REQUIRED ────────────────────────────────────────────────────────────
+
+Route::middleware('auth')->group(function () {
+    // analytics + bookmarks — auth only
+    Route::get('/catalog/analytics', [CatalogController::class, 'analytics'])->name('catalog.analytics');
+    Route::post('/bookmarks/{ad}', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
+
+    // Admin
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/slots', [\App\Http\Controllers\Admin\SlotApprovalController::class, 'index'])->name('slots');
@@ -39,7 +58,6 @@ Route::middleware('auth')->group(function () {
     // Merchant + Admin
     Route::middleware('role:merchant,agency,admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
         Route::get('/ads',           [AdController::class, 'index'])->name('ads.index');
         Route::get('/ads/create',    [AdController::class, 'create'])->name('ads.create');
         Route::post('/ads',          [AdController::class, 'store'])->name('ads.store');
@@ -55,20 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
     });
 
-    // Buyer
-    Route::middleware('role:buyer,merchant,agency,admin')->group(function () {
-        Route::get('/catalog',           [CatalogController::class, 'index'])->name('catalog');
-        Route::get('/catalog/ranking',   [CatalogController::class, 'ranking'])->name('catalog.ranking');
-        Route::get('/catalog/analytics', [CatalogController::class, 'analytics'])->name('catalog.analytics');
-        Route::get('/hotspots',          [HotspotController::class, 'index'])->name('catalog.hotspots');
-        Route::get('/hotspots/{slug}',   [HotspotController::class, 'show'])->name('catalog.hotspot.show');
-    });
-
-    // Ad Detail — public (aber nur active Ads)
-    Route::get('/ads/{ad}/click', [AdController::class, 'click'])->name('ads.click');
-    Route::get('/ads/{ad}', [AdController::class, 'show'])->name('ads.show');
-
-    // Alle Rollen
+    // Alle eingeloggten Rollen
     Route::post('/bookmarks/{ad}',  [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
     Route::get('/bookmarks',        [BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');

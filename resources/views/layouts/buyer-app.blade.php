@@ -58,6 +58,42 @@
 <x-buyer.ad-overlay />
 <x-profile-overlay />
 
+@guest
+    <div id="beta-notice" class="hidden fixed inset-0 z-[99999] flex items-center justify-center"
+         style="background:rgba(0,0,0,0.85);pointer-events:all;">
+        <div class="w-full max-w-[480px] mx-4 font-mono"
+             style="background:#111111;border:1px solid #2a2a2a;box-shadow:0 0 60px rgba(245,183,0,0.2);">
+
+            <div class="px-6 py-4" style="border-bottom:1px solid #2a2a2a;">
+                <div class="text-[9px] tracking-[2px] mb-1" style="color:#454745;">SYSTEM_NOTICE // STATUS</div>
+                <div class="text-[18px] font-sans font-bold tracking-wider" style="color:#e8e8e8;">PORTFOLIO PROJECT</div>
+            </div>
+
+            <div class="px-6 py-5">
+                <p class="text-[11px] leading-relaxed tracking-wider mb-4" style="color:#A1A1AA;">
+                    Diese Plattform ist ein <span style="color:#F5B700;">Capstone-Projekt</span> im Rahmen einer
+                    Fachinformatiker-Umschulung und befindet sich aktiv in Entwicklung.
+                </p>
+                <p class="text-[11px] leading-relaxed tracking-wider" style="color:#A1A1AA;">
+                    Inhalte, Funktionen und Daten sind zu Demo-Zwecken. Nicht alle Features sind
+                    vollständig implementiert.
+                </p>
+            </div>
+
+            <div class="px-6 py-4 flex items-center justify-between" style="border-top:1px solid #2a2a2a;">
+                <div class="text-[9px] tracking-[2px]" style="color:#454745;">BUILD: ALPHA · MVP</div>
+                <button onclick="dismissBetaNotice()"
+                        class="px-5 py-2 text-[10px] tracking-[2px] font-sans font-bold transition-colors"
+                        style="background:#DC2626;color:white;"
+                        onmouseover="this.style.background='#FF535B'"
+                        onmouseout="this.style.background='#DC2626'">
+                    VERSTANDEN &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
+@endguest
+
 <script>
     function openAdOverlayFromCard(el) {
         openAdOverlay({
@@ -72,6 +108,19 @@
             image:       el.dataset.adImage || ''
         });
     }
+
+    (function() {
+        const KEY = 'adsapp_beta_seen';
+        if (!localStorage.getItem(KEY)) {
+            document.getElementById('beta-notice').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        window.dismissBetaNotice = function() {
+            localStorage.setItem(KEY, '1');
+            document.getElementById('beta-notice').classList.add('hidden');
+            document.body.style.overflow = '';
+        };
+    })();
 </script>
 
 </body>

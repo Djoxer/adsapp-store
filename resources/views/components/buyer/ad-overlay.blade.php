@@ -1,29 +1,23 @@
-{{-- Ad Overlay — vollständig JS-generiert, kein vorgerendertes HTML --}}
+{{-- Ad Overlay — vollständig JS-generiert --}}
+@php $isGuest = !Auth::check(); @endphp
 <script>
     (function() {
         'use strict';
+
+        const IS_GUEST = {{ $isGuest ? 'true' : 'false' }};
+        const LOGIN_URL = '{{ route('login') }}';
 
         let overlayEl = null;
 
         function buildOverlay() {
             if (overlayEl) return overlayEl;
-
             overlayEl = document.createElement('div');
             overlayEl.id = 'ad-overlay-dynamic';
             Object.assign(overlayEl.style, {
-                position:       'fixed',
-                top:            '0',
-                left:           '0',
-                right:          '0',
-                bottom:         '0',
-                zIndex:         '9000',
-                display:        'none',
-                alignItems:     'center',
-                justifyContent: 'center',
-                background:     'transparent',
-                pointerEvents:  'none',
+                position: 'fixed', top: '0', left: '0', right: '0', bottom: '0',
+                zIndex: '9000', display: 'none', alignItems: 'center',
+                justifyContent: 'center', background: 'transparent', pointerEvents: 'none',
             });
-
             document.body.appendChild(overlayEl);
             return overlayEl;
         }
@@ -31,10 +25,51 @@
         window.openAdOverlay = function(data) {
             const overlay = buildOverlay();
 
+            // Händler-Button: Gast → Login-Redirect mit Hinweis
+            const merchantBtn = IS_GUEST
+                ? `<a href="${LOGIN_URL}"
+                      style="display:block;text-align:center;padding:12px;font-size:11px;letter-spacing:2px;font-family:'Rajdhani',sans-serif;font-weight:700;text-decoration:none;background:#1a1a1a;color:#454745;border:1px solid #2a2a2a;"
+                      onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                      onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#454745'">
+                      LOGIN FÜR HÄNDLER-LINK &rarr;
+                   </a>`
+                : `<a href="/ads/${data.id}/click" target="_blank"
+                      style="display:block;text-align:center;padding:12px;font-size:11px;letter-spacing:2px;font-family:'Rajdhani',sans-serif;font-weight:700;text-decoration:none;background:#DC2626;color:white;"
+                      onmouseover="this.style.background='#FF535B'" onmouseout="this.style.background='#DC2626'">
+                      ZUM HÄNDLER &rarr;
+                   </a>`;
+
+            // Vollansicht-Button: Gast → Login
+            const detailBtn = IS_GUEST
+                ? `<a href="${LOGIN_URL}"
+                      style="flex:1;display:block;text-align:center;padding:10px;font-size:10px;letter-spacing:2px;font-family:'Share Tech Mono',monospace;text-decoration:none;border:1px solid #2a2a2a;color:#454745;"
+                      onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                      onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#454745'">
+                      LOGIN FÜR VOLLANSICHT
+                   </a>`
+                : `<a href="/ads/${data.id}"
+                      style="flex:1;display:block;text-align:center;padding:10px;font-size:10px;letter-spacing:2px;font-family:'Share Tech Mono',monospace;text-decoration:none;border:1px solid #2a2a2a;color:#A1A1AA;"
+                      onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                      onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#A1A1AA'">
+                      VOLLANSICHT &rarr;
+                   </a>`;
+
+            // Bookmark-Button: Gast → Login-Link statt Toggle
+            const bookmarkBtn = IS_GUEST
+                ? `<a href="${LOGIN_URL}"
+                      style="width:48px;display:flex;align-items:center;justify-content:center;border:1px solid #2a2a2a;background:transparent;color:#454745;font-size:16px;text-decoration:none;"
+                      title="LOGIN ZUM MERKEN"
+                      onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                      onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#454745'">&#10022;</a>`
+                : `<button id="bookmark-btn-${data.id}"
+                           onclick="toggleBookmark(${data.id})"
+                           style="width:48px;border:1px solid ${data.bookmarked ? '#F5B700' : '#2a2a2a'};background:transparent;color:${data.bookmarked ? '#F5B700' : '#454745'};font-size:16px;cursor:pointer;"
+                           onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
+                           onmouseout="this.dataset.bm==='1'?(this.style.borderColor='#F5B700',this.style.color='#F5B700'):(this.style.borderColor='#2a2a2a',this.style.color='#454745')">&#10022;</button>`;
+
             overlay.innerHTML = `
             <div style="width:100%;max-width:680px;position:relative;margin:0 16px;
-                        background:#111111;border:1px solid #2a2a2a;
-                        pointer-events:all;
+                        background:#111111;border:1px solid #2a2a2a;pointer-events:all;
                         box-shadow:0 0 60px rgba(245,183,0,0.25), 0 0 120px rgba(245,183,0,0.12);">
 
                 <button onclick="closeAdOverlay()"
@@ -57,8 +92,7 @@
                     <div style="aspect-ratio:1;background:#1a1a1a;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;overflow:hidden;">
                         ${data.image
                 ? `<img src="${data.image}" style="width:100%;height:100%;object-fit:cover;">`
-                : `<span style="font-size:10px;letter-spacing:2px;color:#999999;font-family:'Share Tech Mono',monospace;">NO_IMAGE</span>`
-            }
+                : `<span style="font-size:10px;letter-spacing:2px;color:#999999;font-family:'Share Tech Mono',monospace;">NO_IMAGE</span>`}
                     </div>
                     <div style="display:flex;flex-direction:column;gap:16px;min-width:0;overflow:hidden;">
                         <div>
@@ -74,39 +108,36 @@
                             <div style="font-size:11px;letter-spacing:1px;color:#A1A1AA;font-family:'Share Tech Mono',monospace;word-break:break-word;">${data.merchant ?? '—'}</div>
                         </div>
                         <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
-                            <a href="/ads/${data.id}/click" target="_blank"
-                               style="display:block;text-align:center;padding:12px;font-size:11px;letter-spacing:2px;font-family:'Rajdhani',sans-serif;font-weight:700;text-decoration:none;background:#DC2626;color:white;"
-                               onmouseover="this.style.background='#FF535B'" onmouseout="this.style.background='#DC2626'">
-                                ZUM HÄNDLER &rarr;
-                            </a>
+                            ${merchantBtn}
                             <div style="display:flex;gap:8px;">
-                                <a href="/ads/${data.id}"
-                                   style="flex:1;display:block;text-align:center;padding:10px;font-size:10px;letter-spacing:2px;font-family:'Share Tech Mono',monospace;text-decoration:none;border:1px solid #2a2a2a;color:#A1A1AA;"
-                                   onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
-                                   onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#A1A1AA'">
-                                    VOLLANSICHT &rarr;
-                                </a>
-                                <button id="bookmark-btn-${data.id}"
-                                        onclick="toggleBookmark(${data.id})"
-                                        style="width:48px;border:1px solid ${data.bookmarked ? '#F5B700' : '#2a2a2a'};background:transparent;color:${data.bookmarked ? '#F5B700' : '#454745'};font-size:16px;cursor:pointer;"
-                                        onmouseover="this.style.borderColor='#F5B700';this.style.color='#F5B700'"
-                                        onmouseout="this.dataset.bm==='1'?(this.style.borderColor='#F5B700',this.style.color='#F5B700'):(this.style.borderColor='#2a2a2a',this.style.color='#454745')">&#10022;</button>
+                                ${detailBtn}
+                                ${bookmarkBtn}
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+
+                ${IS_GUEST ? `
+                <div style="padding:10px 24px;border-top:1px solid #2a2a2a;text-align:center;font-size:9px;letter-spacing:2px;color:#454745;font-family:'Share Tech Mono',monospace;">
+                    <a href="${LOGIN_URL}" style="color:#F5B700;text-decoration:none;">LOGIN</a> ODER
+                    <a href="{{ route('register') }}" style="color:#F5B700;text-decoration:none;">REGISTRIEREN</a>
+                    &nbsp;FÜR VOLLEN ZUGRIFF
+                </div>` : ''}
+            </div>`;
 
             overlay.style.display = 'flex';
-            fetch('/events/track', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ ad_id: data.id, event_type: 'view' })
-            });
+
+            // Event-Tracking nur für eingeloggte User sinnvoll, aber technisch kein Problem
+            if (!IS_GUEST) {
+                fetch('/events/track', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ad_id: data.id, event_type: 'view' })
+                });
+            }
             document.body.style.overflow = 'hidden';
         };
 
@@ -116,6 +147,7 @@
         };
 
         window.toggleBookmark = function(adId) {
+            if (IS_GUEST) { window.location.href = LOGIN_URL; return; }
             fetch('/bookmarks/' + adId, {
                 method: 'POST',
                 headers: {
@@ -123,8 +155,8 @@
                     'Accept': 'application/json',
                 }
             })
-                .then(function(r) { return r.json(); })
-                .then(function(res) {
+                .then(r => r.json())
+                .then(res => {
                     const btn = document.getElementById('bookmark-btn-' + adId);
                     if (btn) {
                         const isActive = res.bookmarked;
@@ -135,7 +167,7 @@
                     }
                     showBookmarkToast(res.bookmarked);
                 })
-                .catch(function(err) { console.error('Bookmark error:', err); });
+                .catch(err => console.error('Bookmark error:', err));
         };
 
         window.showBookmarkToast = function(added) {
@@ -144,31 +176,22 @@
                 toast = document.createElement('div');
                 toast.id = 'bookmark-toast';
                 Object.assign(toast.style, {
-                    position:      'fixed',
-                    bottom:        '80px',
-                    right:         '24px',
-                    zIndex:        '100000',
-                    padding:       '8px 16px',
-                    fontSize:      '10px',
-                    letterSpacing: '2px',
-                    fontFamily:    'monospace',
-                    border:        '1px solid',
-                    transition:    'opacity 0.2s ease',
-                    pointerEvents: 'none',
+                    position: 'fixed', bottom: '80px', right: '24px', zIndex: '100000',
+                    padding: '8px 16px', fontSize: '10px', letterSpacing: '2px',
+                    fontFamily: 'monospace', border: '1px solid',
+                    transition: 'opacity 0.2s ease', pointerEvents: 'none',
                 });
                 document.body.appendChild(toast);
             }
-            toast.textContent       = added ? '\u2726 MERKLISTE +1' : '\u2726 ENTFERNT';
-            toast.style.background  = added ? '#1a1200' : '#141414';
-            toast.style.borderColor = added ? '#F5B700' : '#454745';
-            toast.style.color       = added ? '#F5B700' : '#A1A1AA';
-            toast.style.opacity     = '1';
+            toast.textContent      = added ? '\u2726 MERKLISTE +1' : '\u2726 ENTFERNT';
+            toast.style.background = added ? '#1a1200' : '#141414';
+            toast.style.borderColor= added ? '#F5B700' : '#454745';
+            toast.style.color      = added ? '#F5B700' : '#A1A1AA';
+            toast.style.opacity    = '1';
             clearTimeout(window._toastTimer);
             window._toastTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
         };
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeAdOverlay();
-        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAdOverlay(); });
     })();
 </script>

@@ -13,16 +13,15 @@
 <nav class="fixed top-0 left-0 right-0 h-[64px] px-7 border-b-2 border-line-yellow bg-black z-[150]"
      style="display:grid; grid-template-columns:280px 1fr 260px; align-items:center;">
 
-    {{-- Col 1: Logo — links --}}
+    {{-- Col 1: Logo --}}
     <a href="{{ route('catalog') }}"
        class="font-sans font-bold text-4xl italic tracking-[3px] text-brand-red no-underline logo-blink justify-self-start whitespace-nowrap"
        style="line-height:1;">
         ADSAPP.STORE
     </a>
 
-    {{-- Col 2: Search — exakt zentriert --}}
+    {{-- Col 2: Search --}}
     <form method="GET" action="{{ route('catalog') }}" class="relative justify-self-center" style="width:350px;max-width:100%;">
-        {{-- Kategorie + Sort aus aktuellem State erhalten --}}
         @if(request('category'))
             <input type="hidden" name="category" value="{{ request('category') }}">
         @endif
@@ -38,65 +37,79 @@
                style="background:#1a1a1a;border:1px solid #333333;color:#A1A1AA;width:350px;">
     </form>
 
-    {{-- Col 3: User info + dropdown — rechts --}}
+    {{-- Col 3: Auth-abhängig --}}
     <div class="flex items-center gap-6 justify-self-end">
-        <div class="text-right text-[10px] tracking-widest leading-relaxed">
-            <div class="text-copy-neutral">OPERATOR_ID: <span class="text-brand-yellow">{{ Auth::user()->id ?? '---' }}-X</span></div>
-            <div class="text-copy-neutral">{{ strtoupper(Auth::user()->name ?? 'OPERATOR') }} · <span class="text-brand-yellow">{{ strtoupper(Auth::user()->role ?? 'BUYER') }}</span></div>
-        </div>
-        <div class="relative" x-data="{ open: false }" @click.outside="open = false">
-            <button @click="open = !open"
-                    class="w-8 h-8 border border-line-warm rounded-full flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors">
-                <x-icons.profile class="w-4 h-4" />
-            </button>
-            <div x-show="open"
-                 x-transition:enter="transition ease-out duration-150"
-                 x-transition:enter-start="opacity-0 scale-95"
-                 x-transition:enter-end="opacity-100 scale-100"
-                 x-transition:leave="transition ease-in duration-75"
-                 x-transition:leave-start="opacity-100 scale-100"
-                 x-transition:leave-end="opacity-0 scale-95"
-                 class="absolute right-0 top-10 w-48 z-50 bg-coal-panel border border-coal-line"
-                 style="display:none;">
 
-                {{-- Profil — schließt Dropdown via Alpine 'open', dann Overlay --}}
-                <button @click="open = false; openProfileOverlay()"
-                        class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors">
-                    <x-icons.profile class="w-3.5 h-3.5" /> PROFIL
-                </button>
-
-                {{-- Dashboard/Catalog Toggle — role-aware --}}
-                @if(Auth::user()->homeLabel())
-                    <a href="{{ Auth::user()->homeRoute() }}"
-                       class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
-                        <x-icons.dashboard class="w-3.5 h-3.5" />
-                        {{ Auth::user()->homeLabel() }}
-                    </a>
-                @endif
-
-                {{-- Einstellungen --}}
-                <a href="{{ route('settings') }}"
-                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
-                    <x-icons.gear class="w-3.5 h-3.5" /> EINSTELLUNGEN
-                </a>
-
-                {{-- Help --}}
-                <a href="{{ route('help') }}"
-                   class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
-                    <x-icons.quest class="w-3.5 h-3.5" /> HILFE
-                </a>
-
-                {{-- Logout --}}
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
-                            class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-red transition-colors border-t border-coal-line">
-                        <x-icons.logout class="w-3.5 h-3.5" /> LOGOUT
-                    </button>
-                </form>
-
+        @auth
+            {{-- Eingeloggter User: OPERATOR-Info + Dropdown --}}
+            <div class="text-right text-[10px] tracking-widest leading-relaxed">
+                <div class="text-copy-neutral">OPERATOR_ID: <span class="text-brand-yellow">{{ Auth::user()->id }}-X</span></div>
+                <div class="text-copy-neutral">{{ strtoupper(Auth::user()->name) }} · <span class="text-brand-yellow">{{ strtoupper(Auth::user()->role) }}</span></div>
             </div>
-        </div>
+            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                <button @click="open = !open"
+                        class="w-8 h-8 border border-line-warm rounded-full flex items-center justify-center text-copy-neutral hover:border-brand-yellow hover:text-brand-yellow transition-colors">
+                    <x-icons.profile class="w-4 h-4" />
+                </button>
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute right-0 top-10 w-48 z-50 bg-coal-panel border border-coal-line"
+                     style="display:none;">
+
+                    <button @click="open = false; openProfileOverlay()"
+                            class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors">
+                        <x-icons.profile class="w-3.5 h-3.5" /> PROFIL
+                    </button>
+
+                    @if(Auth::user()->homeLabel())
+                        <a href="{{ Auth::user()->homeRoute() }}"
+                           class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
+                            <x-icons.dashboard class="w-3.5 h-3.5" />
+                            {{ Auth::user()->homeLabel() }}
+                        </a>
+                    @endif
+
+                    <a href="{{ route('settings') }}"
+                       class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
+                        <x-icons.gear class="w-3.5 h-3.5" /> EINSTELLUNGEN
+                    </a>
+
+                    <a href="{{ route('help') }}"
+                       class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
+                        <x-icons.quest class="w-3.5 h-3.5" /> HILFE
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                                class="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-red transition-colors border-t border-coal-line">
+                            <x-icons.logout class="w-3.5 h-3.5" /> LOGOUT
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        @endauth
+
+        @guest
+            {{-- Gast: Login + Register Buttons --}}
+            <div class="flex items-center gap-3">
+                <a href="{{ route('login') }}"
+                   class="px-4 py-1.5 text-[10px] tracking-[1.5px] text-copy-neutral border border-coal-line hover:border-brand-yellow hover:text-brand-yellow transition-colors">
+                    LOGIN
+                </a>
+                <a href="{{ route('register') }}"
+                   class="px-4 py-1.5 text-[10px] tracking-[1.5px] text-black bg-brand-yellow hover:bg-yellow-400 transition-colors font-bold">
+                    REGISTRIEREN
+                </a>
+            </div>
+        @endguest
+
     </div>
 
 </nav>
