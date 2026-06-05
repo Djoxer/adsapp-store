@@ -53,6 +53,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/merchants', [\App\Http\Controllers\Admin\MerchantApprovalController::class, 'index'])->name('merchants');
         Route::post('/merchants/{merchant}/approve', [\App\Http\Controllers\Admin\MerchantApprovalController::class, 'approve'])->name('merchants.approve');
         Route::post('/merchants/{merchant}/reject', [\App\Http\Controllers\Admin\MerchantApprovalController::class, 'reject'])->name('merchants.reject');
+        Route::get('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('users');
+        Route::patch('/users/{user}/role', [\App\Http\Controllers\Admin\UserManagementController::class, 'updateRole'])->name('users.role');
+        Route::patch('/users/{user}/ban', [\App\Http\Controllers\Admin\UserManagementController::class, 'toggleBan'])->name('users.ban');
+        Route::patch('/users/{user}/merchant', [\App\Http\Controllers\Admin\UserManagementController::class, 'toggleMerchant'])->name('users.merchant');
     });
 
     // Merchant + Admin

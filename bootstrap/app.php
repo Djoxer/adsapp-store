@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
         ]);
+
+        // Global für alle Web-Requests — prüft bei jedem Request ob User gebannt ist
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckBanned::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

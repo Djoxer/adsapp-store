@@ -66,13 +66,17 @@
                         <x-icons.profile class="w-3.5 h-3.5" /> PROFIL
                     </button>
 
-                    @if(Auth::user()->homeLabel())
-                        <a href="{{ Auth::user()->homeRoute() }}"
+                    @if(Auth::user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}"
                            class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
-                            <x-icons.dashboard class="w-3.5 h-3.5" />
-                            {{ Auth::user()->homeLabel() }}
+                            <x-icons.shield class="w-3.5 h-3.5" /> ADMINISTRATION
                         </a>
                     @endif
+
+                    <a href="{{ route('dashboard') }}"
+                       class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">
+                        <x-icons.dashboard class="w-3.5 h-3.5" /> DASHBOARD
+                    </a>
 
                     <a href="{{ route('settings') }}"
                        class="flex items-center gap-2.5 px-4 py-2.5 text-[10px] tracking-[1.5px] text-copy-neutral hover:bg-coal-surface hover:text-brand-yellow transition-colors border-t border-coal-line">

@@ -31,6 +31,7 @@
                     ['admin.dashboard', 'ÜBERSICHT', '◰'],
                     ['admin.slots',     'SLOT-ANTRÄGE', '◴'],
                     ['admin.merchants', 'HÄNDLER-FREIGABE', '◷'],
+                    ['admin.users',     'USER-VERWALTUNG', '◈'],
                 ];
             @endphp
             @foreach($adminNav as [$route, $label, $icon])

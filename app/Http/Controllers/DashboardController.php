@@ -11,25 +11,25 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $merchant = Auth::user()->merchant;
+        $user = Auth::user()->merchant;
 
         // Admin/Buyer haben keinen Merchant-Record → weiterleiten statt crashen
-        abort_unless($merchant, 403, 'Kein Händler-Profil für diesen Account.');
+        abort_unless($user, 403, 'Kein Händler-Profil für diesen Account.');
 
         // ── KPI 1: Aktive Ads ──────────────────────────────────────────
-        $activeAdsCount = $merchant->ads()->where('status', 'active')->count();
+        $activeAdsCount = $user->ads()->where('status', 'active')->count();
 
         // ── KPI 2: Leads heute (click-Events = dwell auf eigene Ads) ───
         $leadsToday = DB::table('ad_events')
             ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
-            ->where('ads.merchant_id', $merchant->id)
+            ->where('ads.merchant_id', $user->id)
             ->where('ad_events.event_type', 'dwell') // dwell = Klick zum Händler
             ->whereDate('ad_events.created_at', today())
             ->count();
 
         $leadsYesterday = DB::table('ad_events')
             ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
-            ->where('ads.merchant_id', $merchant->id)
+            ->where('ads.merchant_id', $user->id)
             ->where('ad_events.event_type', 'dwell')
             ->whereDate('ad_events.created_at', today()->subDay())
             ->count();
@@ -41,24 +41,24 @@ class DashboardController extends Controller
         // ── KPI 3: Views gesamt (letzte 30 Tage) ───────────────────────
         $viewsTotal = DB::table('ad_events')
             ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
-            ->where('ads.merchant_id', $merchant->id)
+            ->where('ads.merchant_id', $user->id)
             ->where('ad_events.event_type', 'view')
             ->where('ad_events.created_at', '>=', now()->subDays(30))
             ->count();
 
         // ── KPI 4: Durchschnittlicher Score ────────────────────────────
-        $scoreAvg = $merchant->ads()
+        $scoreAvg = $user->ads()
             ->where('status', 'active')
             ->avg('current_score') ?? 0;
 
         // ── Top 5 Ads nach Score ────────────────────────────────────────
-        $topAds = $merchant->ads()
+        $topAds = $user->ads()
             ->with('images')
             ->where('status', 'active')
             ->orderByDesc('current_score')
             ->limit(5)
             ->get()
-            ->map(function ($ad, $i) use ($merchant) {
+            ->map(function ($ad, $i) use ($user) {
                 // CTR = dwell / view Events der letzten 30 Tage
                 $views = DB::table('ad_events')
                     ->where('ad_id', $ad->id)
@@ -76,17 +76,17 @@ class DashboardController extends Controller
             });
 
         // ── Performance Chart: Views + Clicks letzte 30 Tage ───────────
-        $chartDays = collect(range(29, 0))->map(function ($daysAgo) use ($merchant) {
+        $chartDays = collect(range(29, 0))->map(function ($daysAgo) use ($user) {
             $date = today()->subDays($daysAgo)->toDateString();
             $views = DB::table('ad_events')
                 ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
-                ->where('ads.merchant_id', $merchant->id)
+                ->where('ads.merchant_id', $user->id)
                 ->where('ad_events.event_type', 'view')
                 ->whereDate('ad_events.created_at', $date)
                 ->count();
             $clicks = DB::table('ad_events')
                 ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
-                ->where('ads.merchant_id', $merchant->id)
+                ->where('ads.merchant_id', $user->id)
                 ->where('ad_events.event_type', 'dwell')
                 ->whereDate('ad_events.created_at', $date)
                 ->count();
@@ -106,7 +106,7 @@ class DashboardController extends Controller
         $recentLeads = DB::table('ad_events')
             ->join('ads', 'ad_events.ad_id', '=', 'ads.id')
             ->leftJoin('users', 'ad_events.user_id', '=', 'users.id')
-            ->where('ads.merchant_id', $merchant->id)
+            ->where('ads.merchant_id', $user->id)
             ->where('ad_events.event_type', 'dwell')
             ->orderByDesc('ad_events.created_at')
             ->limit(5)
