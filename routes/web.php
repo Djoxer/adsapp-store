@@ -7,7 +7,6 @@ use App\Http\Controllers\HotspotController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SlotBookingController;
-use App\Http\Controllers\SlotController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ProfileController;
@@ -17,32 +16,22 @@ use Illuminate\Support\Facades\Route;
 
 // ── PUBLIC ──────────────────────────────────────────────────────────────────
 
-// Root → Catalog (Gäste sehen Catalog direkt)
 Route::get('/', [CatalogController::class, 'index'])->name('catalog');
-
-// Catalog-Seiten (kein Auth erforderlich)
 Route::get('/catalog', [CatalogController::class, 'index']);
 Route::get('/catalog/ranking', [CatalogController::class, 'ranking'])->name('catalog.ranking');
 Route::get('/hotspots', [HotspotController::class, 'index'])->name('catalog.hotspots');
 Route::get('/hotspots/{slug}', [HotspotController::class, 'show'])->name('catalog.hotspot.show');
-Route::get('/ads/{ad}', [AdController::class, 'show'])->name('ads.show');
-Route::get('/ads/{ad}/click', [AdController::class, 'click'])->name('ads.click');
 Route::post('/events/track', [AdEventController::class, 'track'])->name('events.track');
 
-// Ad-Detail + Deeplink-Click
-Route::get('/ads/{ad}',             [AdController::class, 'show'])->name('ads.show');
-Route::get('/ads/{ad}/click',       [AdController::class, 'click'])->name('ads.click');
-
-// Event-Tracking (wird per JS gefeuert, auch für Gäste sinnvoll)
-Route::post('/events/track', [AdEventController::class, 'track'])->name('events.track');
+// Nur numerische IDs — verhindert dass /ads/create hier gematcht wird
+Route::get('/ads/{ad}', [AdController::class, 'show'])->name('ads.show')->where('ad', '[0-9]+');
+Route::get('/ads/{ad}/click', [AdController::class, 'click'])->name('ads.click')->where('ad', '[0-9]+');
 
 // ── AUTH REQUIRED ────────────────────────────────────────────────────────────
 
 Route::middleware('auth')->group(function () {
-    // analytics + bookmarks — auth only
+
     Route::get('/catalog/analytics', [CatalogController::class, 'analytics'])->name('catalog.analytics');
-    Route::post('/bookmarks/{ad}', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
-    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
 
     // Admin
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -59,27 +48,27 @@ Route::middleware('auth')->group(function () {
         Route::patch('/users/{user}/merchant', [\App\Http\Controllers\Admin\UserManagementController::class, 'toggleMerchant'])->name('users.merchant');
     });
 
-    // Merchant + Admin
+    // Merchant + Agency + Admin
     Route::middleware('role:merchant,agency,admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/ads',           [AdController::class, 'index'])->name('ads.index');
-        Route::get('/ads/create',    [AdController::class, 'create'])->name('ads.create');
-        Route::post('/ads',          [AdController::class, 'store'])->name('ads.store');
+        Route::get('/ads', [AdController::class, 'index'])->name('ads.index');
+        Route::get('/ads/create', [AdController::class, 'create'])->name('ads.create');
+        Route::post('/ads', [AdController::class, 'store'])->name('ads.store');
         Route::get('/ads/{ad}/edit', [AdController::class, 'edit'])->name('ads.edit');
         Route::patch('/ads/{ad}/toggle-status', [AdController::class, 'toggleStatus'])->name('ads.toggle-status');
-        Route::patch('/ads/{ad}',    [AdController::class, 'update'])->name('ads.update');
-        Route::delete('/ads/{ad}',   [AdController::class, 'destroy'])->name('ads.destroy');
+        Route::patch('/ads/{ad}', [AdController::class, 'update'])->name('ads.update');
+        Route::delete('/ads/{ad}', [AdController::class, 'destroy'])->name('ads.destroy');
         Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-        Route::get('/slots',      [SlotBookingController::class, 'index'])->name('slots.index');
-        Route::post('/slots/book',[SlotBookingController::class, 'store'])->name('slots.book');
+        Route::get('/slots', [SlotBookingController::class, 'index'])->name('slots.index');
+        Route::post('/slots/book', [SlotBookingController::class, 'store'])->name('slots.book');
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
     });
 
     // Alle eingeloggten Rollen
-    Route::post('/bookmarks/{ad}',  [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
-    Route::get('/bookmarks',        [BookmarkController::class, 'index'])->name('bookmarks.index');
+    Route::post('/bookmarks/{ad}', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
