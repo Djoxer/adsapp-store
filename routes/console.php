@@ -7,6 +7,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Schedule::command('slots:expire')->hourly();
+
 Schedule::command('ads:recalculate-scores')
     ->everyFiveMinutes()
     ->withoutOverlapping()   // verhindert Parallelläufe falls einer mal länger braucht
