@@ -10,7 +10,12 @@ class HotspotController extends Controller
     // /hotspots — Übersichtsseite
     public function index()
     {
-        $active   = Hotspot::active()->withCount('ads')->get();
+        $active = Hotspot::active()->withCount('ads')->with(['ads' => function($q) {
+            $q->where('ads.status', 'active')
+                ->orderByDesc('current_score')
+                ->limit(4)
+                ->with(['images' => fn($q) => $q->orderBy('position')->limit(1)]);
+        }])->get();
         $upcoming = Hotspot::upcoming()->get();
         $archived = Hotspot::archived()->latest('closes_at')->take(8)->get();
 
@@ -38,6 +43,7 @@ class HotspotController extends Controller
         $ads = $hotspot->ads()
             ->where('ads.status', 'active')
             ->orderByDesc('current_score')
+            ->with(['images' => fn($q) => $q->orderBy('position')->limit(1)])
             ->get();
 
         return view('catalog.hotspot-detail', compact('hotspot', 'ads', 'bookmarkedIds'));

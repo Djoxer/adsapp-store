@@ -32,13 +32,15 @@
                             :bookmarked="in_array($ad->id, $bookmarkedIds)"
                         />
 
-                        {{-- Nach jeder 8. Ad eine kompakte Hotspot-Karte einstreuen (zyklisch) --}}
                         @if(($i + 1) % 8 === 0 && $catalogHotspots->isNotEmpty())
                             @php
                                 $hsIndex = intdiv($i + 1, 8) - 1;
-                                $promoHotspot = $catalogHotspots[$hsIndex % $catalogHotspots->count()];
+                                // Nur anzeigen wenn der Index noch einen Hotspot hat — kein zyklisches Wiederholen
+                                $promoHotspot = $catalogHotspots->get($hsIndex);
                             @endphp
-                            <x-catalog.hotspot-promo :hotspot="$promoHotspot" />
+                            @if($promoHotspot)
+                                <x-catalog.hotspot-promo :hotspot="$promoHotspot" />
+                            @endif
                         @endif
                     @endforeach
                 </div>
@@ -63,7 +65,7 @@
         </div>
 
         {{-- RIGHT PANEL — Hotspots + Premium Zone B --}}
-        <x-catalog.right-panel :premiumSlots="$premiumZoneB" :hotspots="$catalogHotspots" />
+        <x-catalog.right-panel :premiumSlots="$premiumZoneB" :hotspots="$allActiveHotspots" />
 
     </div>
 

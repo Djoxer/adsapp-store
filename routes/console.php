@@ -9,6 +9,8 @@ Artisan::command('inspire', function () {
 
 Schedule::command('slots:expire')->hourly();
 
+Schedule::command('hotspots:sync')->hourly();
+
 Schedule::command('ads:recalculate-scores')
     ->everyFiveMinutes()
     ->withoutOverlapping()   // verhindert Parallelläufe falls einer mal länger braucht

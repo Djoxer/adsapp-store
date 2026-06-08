@@ -2,111 +2,225 @@
 
 namespace Database\Seeders;
 
-use App\Models\Hotspot;
-use App\Models\Ad;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class HotspotSeeder extends Seeder
 {
     public function run(): void
     {
-        $hotspots = [
+        // Bestehende Kalender-Hotspots zuerst löschen (idempotent — Seeder kann
+        // mehrfach laufen ohne Duplikate). Dynamische (category_id IS NOT NULL)
+        // werden vom Scheduler verwaltet, nicht hier.
+        DB::table('hotspots')
+            ->whereNull('category_id')
+            ->whereIn('type', ['saisonal', 'tageszeit', 'event'])
+            ->delete();
+
+        $now = now();
+
+        // ══════════════════════════════════════════════
+        // JAHRESZEITEN — öffnen/schließen per Datum
+        // is_active wird vom Scheduler gesetzt, hier false als Default
+        // ══════════════════════════════════════════════
+        $seasons = [
             [
-                'type'        => 'saisonal',
-                'name'        => 'Sommer Outdoor',
-                'subtitle'    => 'Garten, Camping, Sommermode',
-                'description' => 'Zeitlich begrenzter Hotspot für die warme Jahreszeit. Outdoor-Equipment, Gartenmöbel und Sommermode.',
-                'icon'        => '🌞',
-                'opens_at'    => now()->subDays(5),
-                'closes_at'   => now()->addDays(12),
-            ],
-            [
-                'type'        => 'thematisch',
-                'name'        => 'Tech Wear',
-                'subtitle'    => 'Funktionale Mode trifft Technik',
-                'description' => 'Kuratierter Dauer-Hotspot für technische Bekleidung und Wearables.',
-                'icon'        => '⚡',
-                'opens_at'    => now()->subDays(2),
-                'closes_at'   => now()->addDays(8),
-            ],
-            [
-                'type'        => 'thematisch',
-                'name'        => 'Nachhaltigkeit',
-                'subtitle'    => 'Nur mit nachvollziehbarem Impact-Claim',
-                'description' => 'Dauerhaft offen, kuratiert. Eintrittsschwelle hält Greenwashing draußen.',
-                'icon'        => '🌱',
-                'opens_at'    => null,  // dauerhaft offen
-                'closes_at'   => null,
-            ],
-            // ── Coming Soon ──
-            [
-                'type'        => 'saisonal',
-                'name'        => 'Frühling Mode',
-                'subtitle'    => 'Leichte Stoffe, frische Farben',
-                'description' => 'Startet im Frühjahr — Mode und Accessoires für die Übergangszeit.',
+                'slug'        => 'jahreszeit-fruehling',
+                'name'        => 'Frühling',
+                'subtitle'    => 'Aufblühendes, Outdoor & frische Farben',
                 'icon'        => '🌷',
-                'opens_at'    => now()->addDays(17),
-                'closes_at'   => now()->addDays(90),
-            ],
-            [
-                'type'        => 'event',
-                'name'        => 'Tech Hardware',
-                'subtitle'    => 'Launch-Event Neuheiten',
-                'description' => 'Themen-Hotspot rund um aktuelle Hardware-Releases.',
-                'icon'        => '🖥️',
-                'opens_at'    => now()->addDays(24),
-                'closes_at'   => now()->addDays(38),
-            ],
-            [
-                'type'        => 'tageszeit',
-                'name'        => 'Audio Performance',
-                'subtitle'    => 'HiFi, Studio, Live-Sound',
-                'description' => 'Audio-Equipment für Enthusiasten und Profis.',
-                'icon'        => '🎧',
-                'opens_at'    => now()->addDays(33),
-                'closes_at'   => now()->addDays(47),
-            ],
-            // ── Archiv ──
-            [
                 'type'        => 'saisonal',
-                'name'        => 'Winter Gear',
-                'subtitle'    => 'Ski, Snowboard, Winterkleidung',
-                'description' => 'Abgelaufener Winter-Hotspot.',
-                'icon'        => '❄️',
-                'opens_at'    => now()->subDays(120),
-                'closes_at'   => now()->subDays(28),
+                // criteria speichert Monat/Tag als MM-DD — kein Jahr, jährlich wiederkehrend
+                'criteria'    => json_encode(['start' => '03-01', 'end' => '05-31']),
             ],
             [
-                'type'        => 'thematisch',
-                'name'        => 'Home Office',
-                'subtitle'    => 'Schreibtisch, Stuhl, Setup',
-                'description' => 'Abgelaufener Hotspot rund ums Arbeiten von zuhause.',
-                'icon'        => '🏠',
-                'opens_at'    => now()->subDays(90),
-                'closes_at'   => now()->subDays(44),
+                'slug'        => 'jahreszeit-sommer',
+                'name'        => 'Sommer',
+                'subtitle'    => 'Outdoor, Reise & alles unter der Sonne',
+                'icon'        => '☀️',
+                'type'        => 'saisonal',
+                'criteria'    => json_encode(['start' => '06-01', 'end' => '08-31']),
+            ],
+            [
+                'slug'        => 'jahreszeit-herbst',
+                'name'        => 'Herbst',
+                'subtitle'    => 'Gemütlichkeit, Ernte & warme Töne',
+                'icon'        => '🍂',
+                'type'        => 'saisonal',
+                'criteria'    => json_encode(['start' => '09-01', 'end' => '11-30']),
+            ],
+            [
+                'slug'        => 'jahreszeit-winter',
+                'name'        => 'Winter',
+                'subtitle'    => 'Kälte, Wärme & Schnee',
+                'icon'        => '❄️',
+                'type'        => 'saisonal',
+                // Winter überspannt Jahreswechsel — Scheduler muss das gesondert
+                // behandeln: aktiv wenn Monat >= 12 ODER Monat <= 2
+                'criteria'    => json_encode(['start' => '12-01', 'end' => '02-28', 'wraps_year' => true]),
             ],
         ];
 
-        foreach ($hotspots as $data) {
-            $hotspot = Hotspot::firstOrCreate(
-                ['slug' => Str::slug($data['name'])],
-                $data
-            );
+        // ══════════════════════════════════════════════
+        // TAGESZEITEN — aktivieren sich täglich per Uhrzeit (UTC+1/+2 via App-Timezone)
+        // criteria: start_hour / end_hour in App-Lokalzeit
+        // ══════════════════════════════════════════════
+        $daytimes = [
+            [
+                'slug'     => 'tageszeit-morgen',
+                'name'     => 'Guten Morgen',
+                'subtitle' => 'Der perfekte Start in den Tag',
+                'icon'     => '🌅',
+                'type'     => 'tageszeit',
+                'criteria' => json_encode(['start_hour' => 6, 'end_hour' => 9]),
+            ],
+            [
+                'slug'     => 'tageszeit-mittag',
+                'name'     => 'Mittagspause',
+                'subtitle' => 'Kurze Auszeit, interessante Entdeckungen',
+                'icon'     => '☕',
+                'type'     => 'tageszeit',
+                'criteria' => json_encode(['start_hour' => 10, 'end_hour' => 14]),
+            ],
+            [
+                'slug'     => 'tageszeit-nachmittag',
+                'name'     => 'Nachmittag',
+                'subtitle' => 'Produktiv, entspannt, neugierig',
+                'icon'     => '🌤️',
+                'type'     => 'tageszeit',
+                'criteria' => json_encode(['start_hour' => 15, 'end_hour' => 17]),
+            ],
+            [
+                'slug'     => 'tageszeit-abend',
+                'name'     => 'Abendstunden',
+                'subtitle' => 'Feierabend-Stöbern & Inspirationen',
+                'icon'     => '🌆',
+                'type'     => 'tageszeit',
+                'criteria' => json_encode(['start_hour' => 18, 'end_hour' => 22]),
+            ],
+            [
+                'slug'     => 'tageszeit-nacht',
+                'name'     => 'Nachtschicht',
+                'subtitle' => 'Für die, die noch wach sind',
+                'icon'     => '🌙',
+                'type'     => 'tageszeit',
+                // Nacht überspannt Mitternacht: start > end → Scheduler-Sonderfall
+                'criteria' => json_encode(['start_hour' => 23, 'end_hour' => 5, 'wraps_midnight' => true]),
+            ],
+        ];
 
-            // Aktiven Hotspots ein paar zufällige aktive Ads zuordnen
-            // (nur wenn aktiv UND Ads vorhanden)
-            $isActive = (is_null($data['opens_at']) || $data['opens_at'] <= now())
-                && (is_null($data['closes_at']) || $data['closes_at'] >= now());
+        // ══════════════════════════════════════════════
+        // FESTLICHKEITEN — feste + berechnete Daten
+        // opens_at / closes_at werden vom Scheduler jährlich neu gesetzt.
+        // criteria speichert die Berechnungsregel.
+        // Fenster: 2 Wochen vor dem Datum, 1 Tag danach (außer Angegeben)
+        // ══════════════════════════════════════════════
+        $events = [
+            [
+                'slug'     => 'event-valentinstag',
+                'name'     => 'Valentinstag',
+                'subtitle' => 'Geschenke, Romantik & besondere Momente',
+                'icon'     => '❤️',
+                'type'     => 'event',
+                'criteria' => json_encode([
+                    'rule'         => 'fixed',
+                    'month'        => 2,
+                    'day'          => 14,
+                    'days_before'  => 14,
+                    'days_after'   => 1,
+                ]),
+            ],
+            [
+                'slug'     => 'event-ostern',
+                'name'     => 'Ostern',
+                'subtitle' => 'Frühjahrsgefühle, Geschenke & Traditionen',
+                'icon'     => '🐣',
+                'type'     => 'event',
+                // Ostern = erster Sonntag nach dem ersten Vollmond nach dem 21. März
+                // Gaußsche Osterformel wird im Scheduler berechnet
+                'criteria' => json_encode([
+                    'rule'        => 'easter',
+                    'days_before' => 14,
+                    'days_after'  => 2,
+                ]),
+            ],
+            [
+                'slug'     => 'event-muttertag',
+                'name'     => 'Muttertag',
+                'subtitle' => 'Danke sagen auf die schönste Art',
+                'icon'     => '💐',
+                'type'     => 'event',
+                // 2. Sonntag im Mai
+                'criteria' => json_encode([
+                    'rule'        => 'nth_weekday',
+                    'month'       => 5,
+                    'weekday'     => 0, // 0 = Sonntag (Carbon)
+                    'nth'         => 2,
+                    'days_before' => 14,
+                    'days_after'  => 1,
+                ]),
+            ],
+            [
+                'slug'     => 'event-vatertag',
+                'name'     => 'Vatertag',
+                'subtitle' => 'Für den Mann, der alles gibt',
+                'icon'     => '🍺',
+                'type'     => 'event',
+                // In DE = Christi Himmelfahrt = 39 Tage nach Ostersonntag
+                'criteria' => json_encode([
+                    'rule'        => 'easter_offset',
+                    'offset_days' => 39,
+                    'days_before' => 14,
+                    'days_after'  => 1,
+                ]),
+            ],
+            [
+                'slug'     => 'event-halloween',
+                'name'     => 'Halloween',
+                'subtitle' => 'Gruselig gute Deals',
+                'icon'     => '🎃',
+                'type'     => 'event',
+                'criteria' => json_encode([
+                    'rule'        => 'fixed',
+                    'month'       => 10,
+                    'day'         => 31,
+                    'days_before' => 14,
+                    'days_after'  => 1,
+                ]),
+            ],
+            [
+                'slug'     => 'event-weihnachten',
+                'name'     => 'Weihnachten',
+                'subtitle' => 'Geschenke, Stimmung & Winterzauber',
+                'icon'     => '🎄',
+                'type'     => 'event',
+                // Längeres Fenster — Weihnachtsgeschäft beginnt früh
+                'criteria' => json_encode([
+                    'rule'        => 'fixed',
+                    'month'       => 12,
+                    'day'         => 25,
+                    'days_before' => 30,
+                    'days_after'  => 3,
+                ]),
+            ],
+        ];
 
-            if ($isActive && $hotspot->ads()->count() === 0) {
-                $randomAds = Ad::where('status', 'active')
-                    ->inRandomOrder()
-                    ->limit(rand(3, 8))
-                    ->pluck('id');
-
-                $hotspot->ads()->syncWithoutDetaching($randomAds);
-            }
+        // Alle zusammenbauen und einfügen
+        $rows = [];
+        foreach (array_merge($seasons, $daytimes, $events) as $data) {
+            $rows[] = array_merge([
+                'category_id' => null,
+                'hero_image'  => null,
+                'description' => null,
+                'opens_at'    => null,
+                'closes_at'   => null,
+                'is_active'   => false,
+                'sort_order'  => 0,
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ], $data);
         }
+
+        DB::table('hotspots')->insert($rows);
     }
 }

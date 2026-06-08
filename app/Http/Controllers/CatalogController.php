@@ -78,6 +78,10 @@ class CatalogController extends Controller
         $featuredHotspot = $noFilter
             ? Hotspot::active()
                 ->withCount('ads')
+                ->with(['ads' => fn($q) => $q->where('ads.status', 'active')
+                    ->orderByDesc('current_score')
+                    ->limit(4)
+                    ->with(['images' => fn($q) => $q->orderBy('position')->limit(1)])])
                 ->orderByRaw('closes_at IS NULL, closes_at ASC')
                 ->first()
             : null;
@@ -89,7 +93,17 @@ class CatalogController extends Controller
         // Aktive Hotspots für Catalog-Einbindung (Right-Panel + Inline-Einstreuung)
         $catalogHotspots = Hotspot::active()
             ->withCount('ads')
-            ->orderByDesc('opens_at')
+            ->with(['ads' => fn($q) => $q->where('ads.status', 'active')
+                ->orderByDesc('current_score')
+                ->limit(4)
+                ->with(['images' => fn($q) => $q->orderBy('position')->limit(1)])])
+            ->orderByRaw('closes_at IS NULL, closes_at ASC')
+            ->when($featuredHotspot, fn($q) => $q->where('id', '!=', $featuredHotspot->id))
+            ->get();
+
+        $allActiveHotspots = Hotspot::active()
+            ->withCount('ads')
+            ->orderByRaw('closes_at IS NULL, closes_at ASC')
             ->get();
 
         // ── Für Filter-Bar ───────────────────────────────────────────
@@ -102,7 +116,8 @@ class CatalogController extends Controller
 
         return view('catalog.index', compact(
             'premiumZoneA', 'premiumZoneB', 'organicAds', 'featuredHotspot',
-            'bookmarkedIds', 'categories', 'activeCategory', 'q', 'sort', 'catalogHotspots'
+            'bookmarkedIds', 'categories', 'activeCategory', 'q', 'sort',
+            'catalogHotspots', 'allActiveHotspots'
         ));
     }
 

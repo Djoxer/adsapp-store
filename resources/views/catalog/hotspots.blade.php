@@ -18,15 +18,67 @@
                         <div class="relative overflow-hidden transition-colors"
                              style="background:#141414;border:1px solid #2a2a2a;border-left:3px solid #DC2626;">
 
-                            {{-- Hero --}}
-                            <div class="relative h-44 flex items-center justify-center overflow-hidden" style="background:#0a0a0a;">
-                                @if($h->hero_image)
-                                    <img src="{{ $h->hero_image }}" class="w-full h-full object-cover" style="filter:grayscale(0.4);">
+                            {{-- Hero: Ad-Kollage oder Typ-Gradient als Fallback --}}
+                            @php
+                                $collageImages = $h->ads->map(fn($a) => optional($a->images->first())->remote_url)->filter()->values();
+
+                                $gradient = 'linear-gradient(135deg,#1a1a1a,#2a2a2a)';
+                                $slug = $h->slug;
+                                if (str_contains($slug, 'sommer'))      $gradient = 'linear-gradient(135deg,#b45309,#d97706,#f59e0b)';
+                                elseif (str_contains($slug, 'winter'))  $gradient = 'linear-gradient(135deg,#1e3a5f,#2563eb,#93c5fd)';
+                                elseif (str_contains($slug, 'fruehling')) $gradient = 'linear-gradient(135deg,#166534,#16a34a,#86efac)';
+                                elseif (str_contains($slug, 'herbst'))  $gradient = 'linear-gradient(135deg,#7c2d12,#c2410c,#f97316)';
+                                elseif (str_contains($slug, 'morgen'))  $gradient = 'linear-gradient(135deg,#1e3a5f,#b45309,#f59e0b)';
+                                elseif (str_contains($slug, 'mittag'))  $gradient = 'linear-gradient(135deg,#1d4ed8,#0ea5e9,#bae6fd)';
+                                elseif (str_contains($slug, 'nachmittag')) $gradient = 'linear-gradient(135deg,#0369a1,#0891b2,#67e8f9)';
+                                elseif (str_contains($slug, 'abend'))   $gradient = 'linear-gradient(135deg,#3b0764,#7c3aed,#c084fc)';
+                                elseif (str_contains($slug, 'nacht'))   $gradient = 'linear-gradient(135deg,#020617,#0f172a,#1e293b)';
+                                elseif (str_contains($slug, 'weihnachten')) $gradient = 'linear-gradient(135deg,#7f1d1d,#dc2626,#166534)';
+                                elseif (str_contains($slug, 'halloween'))   $gradient = 'linear-gradient(135deg,#431407,#c2410c,#1c1917)';
+                                elseif (str_contains($slug, 'valentinstag')) $gradient = 'linear-gradient(135deg,#881337,#e11d48,#fda4af)';
+                                elseif (str_contains($slug, 'ostern'))  $gradient = 'linear-gradient(135deg,#365314,#4ade80,#fde68a)';
+                                elseif (str_contains($slug, 'muttertag')) $gradient = 'linear-gradient(135deg,#701a75,#c026d3,#f0abfc)';
+                                elseif (str_contains($slug, 'vatertag')) $gradient = 'linear-gradient(135deg,#1e3a5f,#0369a1,#7dd3fc)';
+                                elseif ($h->type === 'dynamisch') $gradient = 'linear-gradient(135deg,#450a0a,#dc2626,#7f1d1d)';
+                            @endphp
+
+                            <div class="relative h-44 overflow-hidden" style="background:#0a0a0a;">
+
+                                @if($collageImages->count() >= 2)
+                                    {{-- Kollage: bis zu 4 Ad-Bilder als Grid --}}
+                                    <div class="absolute inset-0 grid gap-0.5"
+                                         style="grid-template-columns: repeat({{ min($collageImages->count(), 2) }}, 1fr);
+                    grid-template-rows: repeat({{ $collageImages->count() >= 3 ? 2 : 1 }}, 1fr);">
+                                        @foreach($collageImages->take(4) as $i => $url)
+                                            <div class="overflow-hidden {{ $collageImages->count() === 3 && $i === 0 ? 'row-span-2' : '' }}">
+                                                <img src="{{ $url }}" alt="" class="w-full h-full object-cover"
+                                                     style="filter:brightness(0.75) saturate(0.9);">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    {{-- Overlay damit Badges lesbar bleiben --}}
+                                    <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.1) 60%);"></div>
+                                    {{-- Icon zentriert über der Kollage --}}
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[36px]" style="filter:drop-shadow(0 2px 8px rgba(0,0,0,0.8));">{{ $h->icon ?? '🔥' }}</span>
+                                    </div>
+
+                                @elseif($h->hero_image)
+                                    <img src="{{ $h->hero_image }}" class="w-full h-full object-cover" style="filter:grayscale(0.4) brightness(0.8);">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[40px]">{{ $h->icon ?? '🔥' }}</span>
+                                    </div>
+
                                 @else
-                                    <span class="text-[40px]">{{ $h->icon ?? '🔥' }}</span>
+                                    {{-- Fallback: Typ-Gradient --}}
+                                    <div class="absolute inset-0" style="background:{{ $gradient }};opacity:0.85;"></div>
+                                    <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[48px]" style="filter:drop-shadow(0 2px 12px rgba(0,0,0,0.6));">{{ $h->icon ?? '🔥' }}</span>
+                                    </div>
                                 @endif
 
-                                {{-- Countdown Badge --}}
+                                {{-- Badges bleiben identisch --}}
                                 @if($h->days_left !== null)
                                     <div class="absolute top-3 left-3 px-3 py-1 text-[10px] font-sans font-bold tracking-[1.5px]"
                                          style="background:#F5B700;color:#0a0a0a;">
@@ -38,8 +90,6 @@
                                         DAUERHAFT
                                     </div>
                                 @endif
-
-                                {{-- Endet bald --}}
                                 @if($h->ends_soon)
                                     <div class="absolute top-3 right-3 px-3 py-1 text-[10px] font-sans font-bold tracking-[1.5px] animate-pulse"
                                          style="background:#DC2626;color:white;">
@@ -168,22 +218,11 @@
                 </div>
             </div>
 
-            {{-- CREATE HOTSPOT (Merchant/Agency) --}}
-            @if(auth()->check() && in_array(auth()->user()->role, ['merchant','agency','admin']))
-                <a href="#"
-                   class="flex items-center justify-center gap-2 py-3 text-[11px] font-sans font-bold tracking-[2px] transition-colors"
-                   style="background:#DC2626;color:white;"
-                   onmouseover="this.style.background='#FF535B'"
-                   onmouseout="this.style.background='#DC2626'">
-                    <span class="text-[14px]">⊕</span> CREATE HOTSPOT
-                </a>
-            @endif
-
             {{-- SYSTEM BROADCAST (Dummy) --}}
-            <div class="px-4 py-3" style="background:#141414;border:1px dashed #DC2626;">
-                <div class="text-[9px] tracking-[2px] mb-2" style="color:#DC2626;">SYSTEM BROADCAST</div>
-                <div class="text-[10px] leading-relaxed italic" style="color:#A1A1AA;">
-                    "Hotspot-Aktivität wird in Echtzeit überwacht. Dynamische Auto-Hotspots folgen in v2 — Activity-Detection-Engine in Entwicklung."
+            <div class="px-4 py-3" style="background:#141414;border:1px dashed #2a2a2a;">
+                <div class="text-[9px] tracking-[2px] mb-2" style="color:#454745;">SYSTEM STATUS</div>
+                <div class="text-[10px] leading-relaxed" style="color:#454745;">
+                    Hotspots aktivieren sich automatisch — saisonal, nach Tageszeit und durch echte Marktaktivität.
                 </div>
             </div>
         </aside>

@@ -7,43 +7,88 @@
         <div class="flex-1 min-w-0 space-y-5">
 
             {{-- HOTSPOT HEADER --}}
+            @php
+                $slug = $hotspot->slug;
+                $gradient = 'linear-gradient(135deg,#1a1a1a,#2a2a2a)';
+                if (str_contains($slug, 'sommer'))        $gradient = 'linear-gradient(135deg,#b45309,#d97706,#f59e0b)';
+                elseif (str_contains($slug, 'winter'))    $gradient = 'linear-gradient(135deg,#1e3a5f,#2563eb,#93c5fd)';
+                elseif (str_contains($slug, 'fruehling')) $gradient = 'linear-gradient(135deg,#166534,#16a34a,#86efac)';
+                elseif (str_contains($slug, 'herbst'))    $gradient = 'linear-gradient(135deg,#7c2d12,#c2410c,#f97316)';
+                elseif (str_contains($slug, 'morgen'))    $gradient = 'linear-gradient(135deg,#1e3a5f,#b45309,#f59e0b)';
+                elseif (str_contains($slug, 'mittag'))    $gradient = 'linear-gradient(135deg,#1d4ed8,#0ea5e9,#bae6fd)';
+                elseif (str_contains($slug, 'nachmittag'))$gradient = 'linear-gradient(135deg,#0369a1,#0891b2,#67e8f9)';
+                elseif (str_contains($slug, 'abend'))     $gradient = 'linear-gradient(135deg,#3b0764,#7c3aed,#c084fc)';
+                elseif (str_contains($slug, 'nacht'))     $gradient = 'linear-gradient(135deg,#020617,#0f172a,#1e293b)';
+                elseif (str_contains($slug, 'weihnachten')) $gradient = 'linear-gradient(135deg,#7f1d1d,#dc2626,#166534)';
+                elseif (str_contains($slug, 'halloween')) $gradient = 'linear-gradient(135deg,#431407,#c2410c,#1c1917)';
+                elseif (str_contains($slug, 'valentinstag')) $gradient = 'linear-gradient(135deg,#881337,#e11d48,#fda4af)';
+                elseif (str_contains($slug, 'ostern'))    $gradient = 'linear-gradient(135deg,#365314,#4ade80,#fde68a)';
+                elseif (str_contains($slug, 'muttertag')) $gradient = 'linear-gradient(135deg,#701a75,#c026d3,#f0abfc)';
+                elseif (str_contains($slug, 'vatertag'))  $gradient = 'linear-gradient(135deg,#1e3a5f,#0369a1,#7dd3fc)';
+                elseif ($hotspot->type === 'dynamisch')   $gradient = 'linear-gradient(135deg,#450a0a,#dc2626,#7f1d1d)';
+
+                $collageImages = collect();
+                if ($hotspot->relationLoaded('ads')) {
+                    $collageImages = $ads->map(fn($a) => optional($a->images->first())->remote_url)->filter()->values();
+                }
+            @endphp
+
             <div class="relative overflow-hidden" style="background:#141414;border:1px solid #2a2a2a;border-left:3px solid #DC2626;">
-                <div class="relative h-48 flex items-center justify-center overflow-hidden" style="background:#0a0a0a;">
-                    @if($hotspot->hero_image)
-                        <img src="{{ $hotspot->hero_image }}" class="w-full h-full object-cover" style="filter:grayscale(0.4);">
+
+                {{-- Hero-Bild: Kollage > hero_image > Gradient --}}
+                <div class="relative h-64 overflow-hidden">
+                    @if($collageImages->count() >= 2)
+                        <div class="absolute inset-0 grid gap-0.5"
+                             style="grid-template-columns:repeat({{ min($collageImages->count(),2) }},1fr);grid-template-rows:repeat({{ $collageImages->count() >= 3 ? 2 : 1 }},1fr);">
+                            @foreach($collageImages->take(4) as $url)
+                                <div class="overflow-hidden">
+                                    <img src="{{ $url }}" alt="" class="w-full h-full object-cover"
+                                         style="filter:brightness(0.6) saturate(0.8);">
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.7));"></div>
+                    @elseif($hotspot->hero_image)
+                        <img src="{{ $hotspot->hero_image }}" class="absolute inset-0 w-full h-full object-cover" style="filter:grayscale(0.3) brightness(0.7);">
+                        <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.7));"></div>
                     @else
-                        <span class="text-[56px]">{{ $hotspot->icon ?? '🔥' }}</span>
+                        <div class="absolute inset-0" style="background:{{ $gradient }};"></div>
+                        <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(0,0,0,0.0),rgba(0,0,0,0.6));"></div>
                     @endif
 
-                    @if($hotspot->days_left !== null)
-                        <div class="absolute top-3 left-3 px-3 py-1 text-[10px] font-sans font-bold tracking-[1.5px]"
-                             style="background:#F5B700;color:#0a0a0a;">
-                            NOCH {{ str_pad($hotspot->days_left, 2, '0', STR_PAD_LEFT) }} TAGE
-                        </div>
-                    @else
-                        <div class="absolute top-3 left-3 px-3 py-1 text-[10px] font-sans font-bold tracking-[1.5px]"
-                             style="background:#43d685;color:#0a0a0a;">
-                            DAUERHAFT
-                        </div>
-                    @endif
+                    {{-- Icon zentriert --}}
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-[72px]" style="filter:drop-shadow(0 4px 16px rgba(0,0,0,0.8));">{{ $hotspot->icon ?? '🔥' }}</span>
+                    </div>
 
-                    @if($hotspot->ends_soon)
-                        <div class="absolute top-3 right-3 px-3 py-1 text-[10px] font-sans font-bold tracking-[1.5px] animate-pulse"
-                             style="background:#DC2626;color:white;">
-                            ENDET BALD
-                        </div>
-                    @endif
+                    {{-- Badges --}}
+                    <div class="absolute top-4 left-4 flex items-center gap-2">
+                        @if($hotspot->days_left !== null)
+                            <span class="px-3 py-1 text-[10px] font-sans font-bold tracking-[1.5px]"
+                                  style="background:#F5B700;color:#0a0a0a;">
+                    NOCH {{ str_pad($hotspot->days_left, 2, '0', STR_PAD_LEFT) }} TAGE
+                </span>
+                        @else
+                            <span class="px-3 py-1 text-[10px] font-sans font-bold tracking-[1.5px]"
+                                  style="background:#43d685;color:#0a0a0a;">DAUERHAFT</span>
+                        @endif
+                        @if($hotspot->ends_soon)
+                            <span class="px-3 py-1 text-[10px] font-sans font-bold tracking-[1.5px] animate-pulse"
+                                  style="background:#DC2626;color:white;">ENDET BALD</span>
+                        @endif
+                    </div>
 
-                    {{-- Typ Badge --}}
-                    <div class="absolute bottom-3 left-3 px-2 py-1 text-[9px] tracking-[1.5px]"
+                    {{-- Typ Badge unten --}}
+                    <div class="absolute bottom-4 left-4 px-2 py-1 text-[9px] tracking-[1.5px]"
                          style="background:rgba(0,0,0,0.7);border:1px solid #2a2a2a;color:#A1A1AA;">
                         ZONE_04 // HOTSPOT &nbsp;·&nbsp; TYPE: {{ strtoupper($hotspot->type) }}
                     </div>
                 </div>
 
+                {{-- Text-Block unter dem Hero --}}
                 <div class="p-5 flex items-start justify-between gap-4">
                     <div>
-                        <div class="text-[20px] font-sans font-bold tracking-[1px] mb-1" style="color:#e8e8e8;">
+                        <div class="text-[22px] font-sans font-bold tracking-[1px] mb-1" style="color:#e8e8e8;">
                             {{ $hotspot->name }}
                         </div>
                         @if($hotspot->subtitle)
@@ -55,7 +100,7 @@
                     </div>
                     <div class="flex-shrink-0 text-right">
                         <div class="text-[9px] tracking-[1.5px] mb-1" style="color:#454745;">ID: HS_{{ str_pad($hotspot->id,4,'0',STR_PAD_LEFT) }}</div>
-                        <div class="text-[22px] font-sans font-bold" style="color:#DC2626;">{{ $hotspot->ads_count }}</div>
+                        <div class="text-[28px] font-sans font-bold" style="color:#DC2626;">{{ $hotspot->ads_count }}</div>
                         <div class="text-[9px] tracking-[1.5px]" style="color:#454745;">ADS</div>
                     </div>
                 </div>
